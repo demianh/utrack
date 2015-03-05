@@ -3,7 +3,13 @@
 var wTrack = {
 	lastEvent: null,
 	plugins: [],
-	trackedEvents: ['click','focus','blur','keyup','load'],
+	elementTypes: {
+		types: [],
+		classes: [],
+		maxDepth: 1
+	},
+	trackedEvents: ['click','focus','blur','keypress','load'],
+	keyboardStack: [],
 	init: function(){
 		// overwrite global addEventListener Function
 		var oldAddEventListener = EventTarget.prototype.addEventListener;
@@ -24,7 +30,6 @@ var wTrack = {
 	trackEvent: function(event){
 
 
-
 		// ignore events that have been logged already
 		if (this.lastEvent == event){
 			return;
@@ -32,24 +37,30 @@ var wTrack = {
 		this.lastEvent = event;
 
 
-
 		// log event
 		var te = new this.TrackedEvent();
 		te.event = event.type;
-		te.element = event.srcElement.tagName;
+		te.element = this.getElementType(event.srcElement);
 		te.label = this.getElementLabel(event.srcElement);
-		te.coordinates.x = event.x;
-		te.coordinates.y = event.y;
+		if (event.x){
+			te.data.coordinates = {x: event.x, y: event.y};
+		}
+
+		// for debug purposes
+		te.data.event = event;
 
 		// focus
-		if (event.type = 'keyup'){
+		if (event.type == 'keypress'){
 			if (event.srcElement.tagName != 'INPUT'){
 				return;
 			}
-			te.label = String.fromCharCode(event.keyCode);
+			te.data.input = String.fromCharCode(event.charCode);
+			this.keyboardStack.push(te.data.input);
 		}
-
-		console.log(event);
+		if (event.type == 'blur'){
+			te.data.input = this.keyboardStack.join('');
+			this.keyboardStack = [];
+		}
 		this.Queue.push(te);
 
 	},
@@ -90,6 +101,40 @@ var wTrack = {
 			return element.nextSibling.textContent;
 		}
 	},
+	getElementType: function(element){
+		// check if element contains any of the classes
+		var detectedClass = this.elementHasClassRecursive(element, this.elementTypes.classes, this.elementTypes.maxDepth);
+
+		var elementName = element.tagName;
+		if (detectedClass){
+			// get custom type for detected class
+			for(var idx in this.elementTypes.types){
+				if (this.elementTypes.types[idx][1].indexOf(detectedClass) >= 0){
+					// overwrite element name with custom type
+					elementName = this.elementTypes.types[idx][0];
+					break;
+				}
+			}
+		}
+		return elementName;
+	},
+	elementHasClassRecursive: function(element, classNames, depth){
+		if (!element || depth <= 0){
+			return false;
+		}
+		if (element.classList){
+			for(var idx in classNames){
+				if (Array.prototype.indexOf.call(element.classList, classNames[idx]) >= 0){
+					return classNames[idx];
+				}
+			}
+		}
+		// class not found, check parent element
+		if (classNames){
+			return this.elementHasClassRecursive(element.parentNode, classNames, --depth);
+		}
+	},
+	// register a new plugin
 	registerPlugin: function(name, waitForDom, init){
 		if(!waitForDom || document.readyState === "complete") {
 			init();
@@ -102,24 +147,38 @@ var wTrack = {
 			}, false);
 		}
 	},
+	registerElementType: function(type, classNames, searchDepth){
+		var depth = searchDepth || 1;
+		this.elementTypes.types.push([type, classNames, depth]);
+
+		// rebuild classes list & max search depth
+		var classes = [];
+		var maxDepth = 1;
+		for (var idx in this.elementTypes.types){
+			classes = classes.concat(this.elementTypes.types[idx][1]);
+			if (this.elementTypes.types[idx][2] > maxDepth){
+				maxDepth = this.elementTypes.types[idx][2];
+			}
+		}
+		this.elementTypes.maxDepth = maxDepth;
+		this.elementTypes.classes = classes;
+	},
 	Queue: {
 		push: function(trackedEvent){
 			console.log(trackedEvent);
 		}
 	},
-	TrackedEvent: function(event, element, label, coordinates, workflow, step, type, sessionId, screenshotData) {
+	TrackedEvent: function(event, element, label, workflow, step, type, sessionId, data) {
 		this.event = event || null;
 		this.element = element || null;
 		this.label = label || null;
-		this.coordinates = coordinates || {
-			x: null,
-			y: null
-		};
+
 		this.workflow = workflow || null;
 		this.step = step || null;
 		this.type = type || null;
 		this.sessionId = sessionId || null;
-		this.screenshotData = screenshotData || null;
+
+		this.data = data || {};
 
 		this.timestamp = Date.now();
 	}
@@ -136,15 +195,32 @@ wTrack.registerPlugin('jquery.ui.dialog', true, function(){
 	jQuery(window).bind("dialogbeforeclose", function(event, ui) {
 		wTrack.Queue.push(new wTrack.TrackedEvent(
 			'dialogbeforeclose',
-			null,
+			'dialog',
 			'Dialog closed'
 		));
 	});
 	jQuery(window).bind("dialogopen", function(event, ui) {
 		wTrack.Queue.push(new wTrack.TrackedEvent(
 			'dialogopen',
-			null,
+			'dialog',
 			'Dialog opened'
 		));
 	});
 });
+
+wTrack.registerPlugin('webling.mainnav', true, function(){
+	jQuery(document).on('click', '.weblingMenue > div > div', function(event) {
+		wTrack.Queue.push(new wTrack.TrackedEvent(
+			'navigate',
+			null,
+			wTrack.getElementLabel(event.srcElement)
+		));
+	});
+});
+
+
+// =============== Custom Elements =================== //
+
+wTrack.registerElementType('button', ['button', 'buttonFirst'], 2);
+wTrack.registerElementType('treeNode', ['LibJsV3ComponentWeblingTreeNodeHead']);
+wTrack.registerElementType('mainNav', ['weblingMenue'], 4);
