@@ -28,9 +28,22 @@ var wTrack = {
 			document.addEventListener(this.trackedEvents[idx], function (){}, false);
 		}
 
+		// add on close event
+		window.onbeforeunload = function() {
+			wTrack.Queue.push(new wTrack.TrackedEvent(
+				'session_ended',
+				'session',
+				'Browser Session ended'
+			));
+		};
+
 		// start socket connection
 		this.socket = io('http://localhost:3000');
-		this.socket.emit('trackedEvent', 'Logging started');
+		wTrack.Queue.push(new wTrack.TrackedEvent(
+			'session_started',
+			'session',
+			'Browser Session started'
+		));
 	},
 	trackEvent: function(event){
 
