@@ -8,6 +8,7 @@ var wTrack = {
 		classes: [],
 		maxDepth: 1
 	},
+	socket: null,
 	trackedEvents: ['click','focus','blur','keypress','load'],
 	keyboardStack: [],
 	init: function(){
@@ -26,6 +27,10 @@ var wTrack = {
 		for (var idx in this.trackedEvents) {
 			document.addEventListener(this.trackedEvents[idx], function (){}, false);
 		}
+
+		// start socket connection
+		this.socket = io('http://localhost:3000');
+		this.socket.emit('trackedEvent', 'Logging started');
 	},
 	trackEvent: function(event){
 
@@ -166,6 +171,10 @@ var wTrack = {
 	Queue: {
 		push: function(trackedEvent){
 			console.log(trackedEvent);
+
+			// remove event reference before sending
+			trackedEvent.data.event = null;
+			wTrack.socket.emit('trackedEvent', JSON.stringify(trackedEvent));
 		}
 	},
 	TrackedEvent: function(event, element, label, workflow, step, type, sessionId, data) {
