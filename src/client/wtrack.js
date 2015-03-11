@@ -13,15 +13,17 @@ var wTrack = {
 	keyboardStack: [],
 	init: function(){
 		// overwrite global addEventListener Function
-		var oldAddEventListener = EventTarget.prototype.addEventListener;
-		EventTarget.prototype.addEventListener = function(eventName, eventHandler) {
-			oldAddEventListener.call(this, eventName, function(event) {
-				eventHandler(event);
-				if (wTrack.trackedEvents.indexOf(event.type) >= 0) {
-					wTrack.trackEvent(event);
-				}
-			});
-		};
+		if (EventTarget){
+			var oldAddEventListener = EventTarget.prototype.addEventListener;
+			EventTarget.prototype.addEventListener = function(eventName, eventHandler) {
+				oldAddEventListener.call(this, eventName, function(event) {
+					eventHandler(event);
+					if (wTrack.trackedEvents.indexOf(event.type) >= 0) {
+						wTrack.trackEvent(event);
+					}
+				});
+			};
+		}
 
 		// adding dummy listeners for all events (otherwise the events aren't triggered)
 		for (var idx in this.trackedEvents) {
@@ -54,7 +56,6 @@ var wTrack = {
 		}
 		this.lastEvent = event;
 
-
 		// log event
 		var te = new this.TrackedEvent();
 		te.event = event.type;
@@ -79,6 +80,12 @@ var wTrack = {
 			te.data.input = this.keyboardStack.join('');
 			this.keyboardStack = [];
 		}
+
+		if (event.type == 'click'){
+			// Add Full Body HTML
+			te.data.html = document.documentElement.outerHTML;
+		}
+
 		this.Queue.push(te);
 
 	},
@@ -246,3 +253,5 @@ wTrack.registerPlugin('webling.mainnav', true, function(){
 wTrack.registerElementType('button', ['button', 'buttonFirst'], 2);
 wTrack.registerElementType('treeNode', ['LibJsV3ComponentWeblingTreeNodeHead']);
 wTrack.registerElementType('mainNav', ['weblingMenue'], 4);
+wTrack.registerElementType('template', ['templatePreview'], 2);
+
