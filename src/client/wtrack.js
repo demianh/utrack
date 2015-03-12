@@ -82,8 +82,23 @@ var wTrack = {
 		}
 
 		if (event.type == 'click'){
+
+			// convert properties to attributes in inputs
+			var elems = document.getElementsByTagName("input");
+			for(var i = 0; i < elems.length; i++) {
+				// set attribute to property value
+				elems[i].setAttribute("value", elems[i].value);
+			}
+
 			// Add Full Body HTML
 			te.data.html = document.documentElement.outerHTML;
+
+			// Screen Measurements
+			var html = document.documentElement;
+			te.data.screenWidth = Math.max(html.clientWidth, window.innerWidth || 0);
+			te.data.screenHeight = Math.max(html.clientHeight, window.innerHeight || 0);
+			te.data.scrollTop = (window.pageYOffset || html.scrollTop)  - (html.clientTop || 0);
+			te.data.scrollLeft = (window.pageXOffset || html.scrollLeft) - (html.clientLeft || 0);
 		}
 
 		this.Queue.push(te);

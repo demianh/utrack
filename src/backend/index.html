@@ -16,7 +16,12 @@
 <script>
 	var socket = io();
 	socket.on('trackedEvent', function(msg){
+		var data = JSON.parse(msg);
 		$('#messages').append($('<li>').text(msg));
+
+		if (data.data.screenshotUrl){
+			$('#messages').append($('<li><a href="/'+data.data.screenshotUrl+'" target="_blank">Screenshot</a></li>'));
+		}
 	});
 </script>
 </body>

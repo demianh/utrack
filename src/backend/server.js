@@ -1,5 +1,6 @@
 var app = require('express')();
 var http = require('http').Server(app);
+var fs = require('fs');
 var io = require('socket.io')(http);
 var screenshot = require('./screenshot.js')();
 
@@ -7,16 +8,30 @@ app.get('/', function(req, res){
 	res.sendFile(__dirname + '/index.html');
 });
 
+app.get("/screenshots/*", function(req, res){
+	fs.exists(__dirname + req.path, function (exists) {
+		if (exists){
+			res.sendFile(__dirname + req.path);
+		}
+		// TODO: 404 errors
+	});
+});
+
 io.on('connection', function(socket){
 	socket.on('trackedEvent', function(msg){
-		io.emit('trackedEvent', msg);
 		var eventData = JSON.parse(msg);
 
 		var imageName = null;
 		if (eventData && eventData.data && eventData.data.html){
 			imageName = 'screenshots/wbl_' + Date.now() + '.png';
-			screenshot.fromHTML(eventData.data.html, imageName);
+			screenshot.fromHTML(eventData.data, imageName);
 		}
+
+		// add image url and send to loggers
+		var copy = JSON.parse(JSON.stringify(eventData));
+		copy.data.screenshotUrl = imageName;
+		copy.data.html = null;
+		io.emit('trackedEvent', JSON.stringify(copy));
 	});
 });
 
