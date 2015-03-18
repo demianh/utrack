@@ -27,6 +27,7 @@ var screenshot = function() {
 		});
 	});
 
+	// Render HTML Markup from Queue
 	var render = function(){
 		if (!renderQueue.length){
 			console.log('Render Queue Empty!');
@@ -65,23 +66,36 @@ var screenshot = function() {
 
 					// wait for webpage to be loaded
 					setTimeout(function(){
-						page.set('scrollPosition', {top: data.scrollTop, left: data.scrollLeft}, function(){
-							page.render(filename, function(finished){
-								console.log('rendering done');
-								//ph.exit();
+						page.evaluate(
+							function (data) {
+								var clickHighlighter = document.createElement('div');
+								clickHighlighter.style.cssText = 'position:absolute;width:20px;height:20px;border-radius:10px;opacity:0.5;z-index:99999999;background:#F00;';
+								clickHighlighter.style.top = data.coordinates.y + data.scrollTop + 'px';
+								clickHighlighter.style.left = data.coordinates.x + data.scrollLeft + 'px';
+								document.body.appendChild(clickHighlighter);
+								return data;
+							},
+							function (result) {
+								page.set('scrollPosition', {top: data.scrollTop, left: data.scrollLeft}, function(){
+									page.render(filename, function(finished){
+										console.log('rendering done');
+										//ph.exit();
 
-								// render next screenshot
-								isRendering = false;
-								render();
-							});
-						});
-					}, 10*1000);
-
+										// render next screenshot
+										isRendering = false;
+										render();
+									});
+								});
+							},
+							data
+						);
+					}, 5*1000);
 				});
 			});
 		});
 	};
 
+	// Adding HTML to the render Queue
 	return {
 		fromHTML: function(data, filename){
 			renderQueue.push([data, filename]);
