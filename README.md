@@ -10,6 +10,8 @@ Install Dependencies:
 
 Include src/client/wtrack.js in your application (before any other JS file!)
 
+Install and run MongoDB: [http://docs.mongodb.org/manual/administration/install-on-linux/](http://docs.mongodb.org/manual/administration/install-on-linux/)
+
 ## Run
 
 Start Backend:

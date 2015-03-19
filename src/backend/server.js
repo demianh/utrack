@@ -3,6 +3,14 @@ var http = require('http').Server(app);
 var fs = require('fs');
 var io = require('socket.io')(http);
 var screenshot = require('./screenshot.js')();
+var MongoClient = require('mongodb').MongoClient;
+
+// Establish Database Connection
+var DB = null;
+MongoClient.connect('mongodb://127.0.0.1:27017/wtrack', function(err, connection) {
+	if(err) throw err;
+	DB = connection;
+});
 
 app.get('/', function(req, res){
 	res.sendFile(__dirname + '/index.html');
@@ -32,6 +40,9 @@ io.on('connection', function(socket){
 		copy.data.screenshotUrl = imageName;
 		copy.data.html = null;
 		io.emit('trackedEvent', JSON.stringify(copy));
+
+		// persist data in DB
+		DB.collection('log').insert(copy, function(err, docs) {});
 	});
 });
 
