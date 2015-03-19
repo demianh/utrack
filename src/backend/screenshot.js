@@ -70,8 +70,8 @@ var screenshot = function() {
 							function (data) {
 								var clickHighlighter = document.createElement('div');
 								clickHighlighter.style.cssText = 'position:absolute;width:20px;height:20px;border-radius:10px;opacity:0.5;z-index:99999999;background:#F00;';
-								clickHighlighter.style.top = data.coordinates.y + data.scrollTop + 'px';
-								clickHighlighter.style.left = data.coordinates.x + data.scrollLeft + 'px';
+								clickHighlighter.style.top = data.coordinates.y + data.scrollTop - 10 + 'px';
+								clickHighlighter.style.left = data.coordinates.x + data.scrollLeft - 10 + 'px';
 								document.body.appendChild(clickHighlighter);
 								return data;
 							},
