@@ -13,7 +13,8 @@ MongoClient.connect('mongodb://127.0.0.1:27017/wtrack', function(err, connection
 });
 
 app.get('/', function(req, res){
-	res.sendFile(__dirname + '/index.html');
+	//res.sendFile(__dirname + '/index.html');
+	res.send('wtrack server running. <a href="http://localhost/projects/demianh/wtrack/src/frontend/">Admin Tool</a>');
 });
 
 app.get("/screenshots/*", function(req, res){

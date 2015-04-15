@@ -1,0 +1,20 @@
+{
+  "name": "wtrack-frontend",
+  "version": "0.0.1",
+  "homepage": "https://github.com/demianh/wtrack",
+  "authors": [
+    "Demian Holderegger <demian.holderegger@gmail.com>"
+  ],
+  "description": "Admin Frontend for wTrack",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "adminlte": "~2.0.5"
+  }
+}
