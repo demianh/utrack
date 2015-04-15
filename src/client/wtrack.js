@@ -11,6 +11,7 @@ var wTrack = {
 	socket: null,
 	trackedEvents: ['click','focus','blur','keypress','load'],
 	keyboardStack: [],
+	trace: [],
 	init: function(){
 		// overwrite global addEventListener Function
 		if (EventTarget){
@@ -33,7 +34,7 @@ var wTrack = {
 		// add on close event
 		window.onbeforeunload = function() {
 			wTrack.Queue.push(new wTrack.TrackedEvent(
-				'session_ended',
+				'session_end',
 				'session',
 				'Browser Session ended'
 			));
@@ -42,7 +43,7 @@ var wTrack = {
 		// start socket connection
 		this.socket = io('http://localhost:3000');
 		wTrack.Queue.push(new wTrack.TrackedEvent(
-			'session_started',
+			'session_start',
 			'session',
 			'Browser Session started'
 		));
@@ -205,6 +206,10 @@ var wTrack = {
 	},
 	Queue: {
 		push: function(trackedEvent){
+			wTrack.traceEvent(trackedEvent);
+
+			trackedEvent.workflow = wTrack.trace;
+
 			console.log(trackedEvent);
 
 			// remove event reference before sending
@@ -212,6 +217,30 @@ var wTrack = {
 			wTrack.socket.emit('trackedEvent', JSON.stringify(trackedEvent));
 		}
 	},
+	traceEvent: function(trackedEvent){
+		function endsWith(str, suffix) {
+			return str.indexOf(suffix, str.length - suffix.length) !== -1;
+		}
+
+		var event = trackedEvent.event;
+
+		// one level deeper
+		if (endsWith(event, '_open')){
+			wTrack.trace.push(trackedEvent.label);
+		}
+
+		// navigate on same level
+		if (endsWith(event, '_nav')){
+			wTrack.trace.pop();
+			wTrack.trace.push(trackedEvent.label);
+		}
+
+		// one level back
+		if (endsWith(event, '_close')){
+			wTrack.trace.pop();
+		}
+	},
+
 	TrackedEvent: function(event, element, label, workflow, step, type, sessionId, data) {
 		this.event = event || null;
 		this.element = element || null;
@@ -238,16 +267,18 @@ wTrack.init();
 wTrack.registerPlugin('jquery.ui.dialog', true, function(){
 	jQuery(window).bind("dialogbeforeclose", function(event, ui) {
 		wTrack.Queue.push(new wTrack.TrackedEvent(
-			'dialogbeforeclose',
+			'dialog_close',
 			'dialog',
 			'Dialog closed'
 		));
 	});
 	jQuery(window).bind("dialogopen", function(event, ui) {
+		// getting the dialog title is kind of an ugly hack
+		var dialogTitle = jQuery(event.target.parentNode.children).find(".ui-dialog-title").text();
 		wTrack.Queue.push(new wTrack.TrackedEvent(
-			'dialogopen',
+			'dialog_open',
 			'dialog',
-			'Dialog opened'
+			dialogTitle
 		));
 	});
 });
@@ -255,7 +286,7 @@ wTrack.registerPlugin('jquery.ui.dialog', true, function(){
 wTrack.registerPlugin('webling.mainnav', true, function(){
 	jQuery(document).on('click', '.weblingMenue > div > div', function(event) {
 		wTrack.Queue.push(new wTrack.TrackedEvent(
-			'navigate',
+			'main_nav',
 			null,
 			wTrack.getElementLabel(event.srcElement)
 		));
