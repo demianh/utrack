@@ -1,39 +1,47 @@
 
 
-var wTrack = {
-	lastEvent: null,
-	plugins: [],
-	elementTypes: {
+var wTrack = (function() {
+	var sessionId = null;
+	var lastEvent = null;
+	var plugins = [];
+	var elementTypes = {
 		types: [],
 		classes: [],
 		maxDepth: 1
-	},
-	socket: null,
-	trackedEvents: ['click','focus','blur','keypress','load'],
-	keyboardStack: [],
-	trace: [],
-	init: function(){
+	};
+	var socket = null;
+	var trackedEvents = ['click','focus','blur','keypress','load'];
+	var keyboardStack = [];
+	var trace = {
+		mainnav: null,
+		subnav: null,
+		workflow: []
+	};
+
+	var init = function(){
+		sessionId = generateGuid();
+
 		// overwrite global addEventListener Function
 		if (EventTarget){
 			var oldAddEventListener = EventTarget.prototype.addEventListener;
 			EventTarget.prototype.addEventListener = function(eventName, eventHandler) {
 				oldAddEventListener.call(this, eventName, function(event) {
 					eventHandler(event);
-					if (wTrack.trackedEvents.indexOf(event.type) >= 0) {
-						wTrack.trackEvent(event);
+					if (trackedEvents.indexOf(event.type) >= 0) {
+						trackEvent(event);
 					}
 				});
 			};
 		}
 
 		// adding dummy listeners for all events (otherwise the events aren't triggered)
-		for (var idx in this.trackedEvents) {
-			document.addEventListener(this.trackedEvents[idx], function (){}, false);
+		for (var idx in trackedEvents) {
+			document.addEventListener(trackedEvents[idx], function (){}, false);
 		}
 
 		// add on close event
 		window.onbeforeunload = function() {
-			wTrack.Queue.push(new wTrack.TrackedEvent(
+			Queue.push(new TrackedEvent(
 				'session_end',
 				'session',
 				'Browser Session ended'
@@ -41,27 +49,34 @@ var wTrack = {
 		};
 
 		// start socket connection
-		this.socket = io('http://localhost:3000');
-		wTrack.Queue.push(new wTrack.TrackedEvent(
+		socket = io('http://localhost:3000');
+		Queue.push(new TrackedEvent(
 			'session_start',
 			'session',
 			'Browser Session started'
 		));
-	},
-	trackEvent: function(event){
+	};
 
+	var generateGuid = function(){
+		return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+			var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+			return v.toString(16);
+		});
+	};
+
+	var trackEvent = function(event){
 
 		// ignore events that have been logged already
-		if (this.lastEvent == event){
+		if (lastEvent == event){
 			return;
 		}
-		this.lastEvent = event;
+		lastEvent = event;
 
 		// log event
-		var te = new this.TrackedEvent();
+		var te = new TrackedEvent();
 		te.event = event.type;
-		te.element = this.getElementType(event.srcElement);
-		te.label = this.getElementLabel(event.srcElement);
+		te.element = getElementType(event.srcElement);
+		te.label = getElementLabel(event.srcElement);
 		if (event.x){
 			te.data.coordinates = {x: event.x, y: event.y};
 		}
@@ -75,11 +90,11 @@ var wTrack = {
 				return;
 			}
 			te.data.input = String.fromCharCode(event.charCode);
-			this.keyboardStack.push(te.data.input);
+			keyboardStack.push(te.data.input);
 		}
 		if (event.type == 'blur'){
-			te.data.input = this.keyboardStack.join('');
-			this.keyboardStack = [];
+			te.data.input = keyboardStack.join('');
+			keyboardStack = [];
 		}
 
 		if (event.type == 'click'){
@@ -102,64 +117,78 @@ var wTrack = {
 			te.data.scrollLeft = (window.pageXOffset || html.scrollLeft) - (html.clientLeft || 0);
 		}
 
-		this.Queue.push(te);
+		Queue.push(te);
 
-	},
-	getElementLabel: function(element){
-		if (element.innerText){
-			return element.innerText;
-		}
-		if (element.textContent){
-			return element.textContent;
-		}
-		if (element.title){
-			return element.title;
-		}
-		if (element.placeholder){
-			return element.placeholder;
-		}
-		if (element.alt){
-			return element.alt;
-		}
-		if (element.name){
-			return element.name;
-		}
-		if (element.value){
-			return element.value;
-		}
+	};
 
-		// check siblings
-		if(element.previousSibling && element.previousSibling.innerText){
-			return element.previousSibling.innerText;
+	var getElementLabel = function(element){
+		var parseElement = function(element){
+			if (element.innerText){
+				return element.innerText;
+			}
+			if (element.textContent){
+				return element.textContent;
+			}
+			if (element.title){
+				return element.title;
+			}
+			if (element.placeholder){
+				return element.placeholder;
+			}
+			if (element.alt){
+				return element.alt;
+			}
+			if (element.name){
+				return element.name;
+			}
+			if (element.value){
+				return element.value;
+			}
+
+			// check siblings
+			if(element.previousSibling && element.previousSibling.innerText){
+				return element.previousSibling.innerText;
+			}
+			if(element.previousSibling && element.previousSibling.textContent){
+				return element.previousSibling.textContent;
+			}
+			if(element.nextSibling && element.nextSibling.innerText){
+				return element.nextSibling.innerText;
+			}
+			if(element.nextSibling && element.nextSibling.textContent){
+				return element.nextSibling.textContent;
+			}
+		};
+
+		var label = parseElement(element);
+		if (label){
+			label = label.trim();
+			if (label.length > 100){
+				label = label.substring(0,97) + '...';
+			}
 		}
-		if(element.previousSibling && element.previousSibling.textContent){
-			return element.previousSibling.textContent;
-		}
-		if(element.nextSibling && element.nextSibling.innerText){
-			return element.nextSibling.innerText;
-		}
-		if(element.nextSibling && element.nextSibling.textContent){
-			return element.nextSibling.textContent;
-		}
-	},
-	getElementType: function(element){
+		return label;
+	};
+
+	var getElementType = function(element){
 		// check if element contains any of the classes
-		var detectedClass = this.elementHasClassRecursive(element, this.elementTypes.classes, this.elementTypes.maxDepth);
+		var detectedClass = elementHasClassRecursive(element, elementTypes.classes, elementTypes.maxDepth);
 
 		var elementName = element.tagName;
 		if (detectedClass){
 			// get custom type for detected class
-			for(var idx in this.elementTypes.types){
-				if (this.elementTypes.types[idx][1].indexOf(detectedClass) >= 0){
+			for(var idx in elementTypes.types){
+				if (elementTypes.types[idx][1].indexOf(detectedClass) >= 0){
 					// overwrite element name with custom type
-					elementName = this.elementTypes.types[idx][0];
+					elementName = elementTypes.types[idx][0];
 					break;
 				}
 			}
 		}
 		return elementName;
-	},
-	elementHasClassRecursive: function(element, classNames, depth){
+	};
+
+	var elementHasClassRecursive = function(element, classNames, depth){
 		if (!element || depth <= 0){
 			return false;
 		}
@@ -172,11 +201,12 @@ var wTrack = {
 		}
 		// class not found, check parent element
 		if (classNames){
-			return this.elementHasClassRecursive(element.parentNode, classNames, --depth);
+			return elementHasClassRecursive(element.parentNode, classNames, --depth);
 		}
-	},
+	};
+
 	// register a new plugin
-	registerPlugin: function(name, waitForDom, init){
+	var registerPlugin = function(name, waitForDom, init){
 		if(!waitForDom || document.readyState === "complete") {
 			init();
 			console.log('wTrack plugin loaded: '+name);
@@ -187,61 +217,78 @@ var wTrack = {
 				console.log('wTrack plugin loaded: '+name);
 			}, false);
 		}
-	},
-	registerElementType: function(type, classNames, searchDepth){
+	};
+
+	var registerElementType = function(type, classNames, searchDepth){
 		var depth = searchDepth || 1;
-		this.elementTypes.types.push([type, classNames, depth]);
+		elementTypes.types.push([type, classNames, depth]);
 
 		// rebuild classes list & max search depth
 		var classes = [];
 		var maxDepth = 1;
-		for (var idx in this.elementTypes.types){
-			classes = classes.concat(this.elementTypes.types[idx][1]);
-			if (this.elementTypes.types[idx][2] > maxDepth){
-				maxDepth = this.elementTypes.types[idx][2];
+		for (var idx in elementTypes.types){
+			classes = classes.concat(elementTypes.types[idx][1]);
+			if (elementTypes.types[idx][2] > maxDepth){
+				maxDepth = elementTypes.types[idx][2];
 			}
 		}
-		this.elementTypes.maxDepth = maxDepth;
-		this.elementTypes.classes = classes;
-	},
-	Queue: {
-		push: function(trackedEvent){
-			wTrack.traceEvent(trackedEvent);
+		elementTypes.maxDepth = maxDepth;
+		elementTypes.classes = classes;
+	};
 
-			trackedEvent.workflow = wTrack.trace;
-
-			console.log(trackedEvent);
-
-			// remove event reference before sending
-			trackedEvent.data.event = null;
-			wTrack.socket.emit('trackedEvent', JSON.stringify(trackedEvent));
-		}
-	},
-	traceEvent: function(trackedEvent){
+	var traceEvent = function(trackedEvent){
 		function endsWith(str, suffix) {
 			return str.indexOf(suffix, str.length - suffix.length) !== -1;
 		}
 
 		var event = trackedEvent.event;
 
+		// mainnav
+		if (endsWith(event, '_mainnav')){
+			trace.mainnav = trackedEvent.label;
+			// Reset Subnav
+			trace.subnav = null;
+		}
+
+		// subnav
+		if (endsWith(event, '_subnav')){
+			trace.subnav = trackedEvent.label;
+		}
+
 		// one level deeper
 		if (endsWith(event, '_open')){
-			wTrack.trace.push(trackedEvent.label);
+			trace.workflow.push(trackedEvent.label);
 		}
 
 		// navigate on same level
 		if (endsWith(event, '_nav')){
-			wTrack.trace.pop();
-			wTrack.trace.push(trackedEvent.label);
+			trace.workflow.pop();
+			trace.workflow.push(trackedEvent.label);
 		}
 
 		// one level back
 		if (endsWith(event, '_close')){
-			wTrack.trace.pop();
+			trace.workflow.pop();
 		}
-	},
 
-	TrackedEvent: function(event, element, label, workflow, step, type, sessionId, data) {
+		console.log(trace);
+	};
+
+	var Queue = {
+		push: function(trackedEvent){
+			traceEvent(trackedEvent);
+
+			trackedEvent.workflow = trace;
+
+			console.log(trackedEvent);
+
+			// remove event reference before sending
+			trackedEvent.data.event = null;
+			socket.emit('trackedEvent', JSON.stringify(trackedEvent));
+		}
+	};
+
+	var TrackedEvent = function(event, element, label, workflow, step, type, sessionId, data) {
 		this.event = event || null;
 		this.element = element || null;
 		this.label = label || null;
@@ -249,13 +296,24 @@ var wTrack = {
 		this.workflow = workflow || null;
 		this.step = step || null;
 		this.type = type || null;
-		this.sessionId = sessionId || null;
+		this.sessionId = sessionId || wTrack.sessionId || null;
 
 		this.data = data || {};
 
 		this.timestamp = Date.now();
-	}
-};
+	};
+
+	// Public API
+	return {
+		init: init,
+		registerPlugin: registerPlugin,
+		registerElementType: registerElementType,
+		TrackedEvent: TrackedEvent,
+		Queue: Queue,
+		// TODO : remove this from public api
+		getElementLabel: getElementLabel
+	};
+})();
 
 wTrack.init();
 
@@ -286,13 +344,22 @@ wTrack.registerPlugin('jquery.ui.dialog', true, function(){
 wTrack.registerPlugin('webling.mainnav', true, function(){
 	jQuery(document).on('click', '.weblingMenue > div > div', function(event) {
 		wTrack.Queue.push(new wTrack.TrackedEvent(
-			'main_nav',
+			'webling_mainnav',
 			null,
 			wTrack.getElementLabel(event.srcElement)
 		));
 	});
 });
 
+wTrack.registerPlugin('webling.subnnav', true, function(){
+	jQuery(document).on('click', '.LibJsV3ComponentViewerPanelList li.LibJsV3ComponentWeblingTreeNodeHead > div, .splitviewMenue li > div', function(event) {
+		wTrack.Queue.push(new wTrack.TrackedEvent(
+			'webling_subnav',
+			null,
+			wTrack.getElementLabel(event.srcElement)
+		));
+	});
+});
 
 // =============== Custom Elements =================== //
 
