@@ -3,6 +3,7 @@
 var wTrack = (function() {
 	var sessionId = null;
 	var lastEvent = null;
+	var lastLog = null;
 	var plugins = [];
 	var elementTypes = {
 		types: [],
@@ -15,7 +16,7 @@ var wTrack = (function() {
 	var trace = {
 		mainnav: null,
 		subnav: null,
-		workflow: []
+		dialog: []
 	};
 
 	var init = function(){
@@ -257,21 +258,25 @@ var wTrack = (function() {
 
 		// one level deeper
 		if (endsWith(event, '_open')){
-			trace.workflow.push(trackedEvent.label);
+			trace.dialog.push(trackedEvent.label);
 		}
 
 		// navigate on same level
 		if (endsWith(event, '_nav')){
-			trace.workflow.pop();
-			trace.workflow.push(trackedEvent.label);
+			trace.dialog.pop();
+			trace.dialog.push(trackedEvent.label);
 		}
 
 		// one level back
 		if (endsWith(event, '_close')){
-			trace.workflow.pop();
+			trace.dialog.pop();
 		}
 
 		console.log(trace);
+	};
+
+	var getLastLog = function(){
+		return lastLog;
 	};
 
 	var Queue = {
@@ -280,6 +285,7 @@ var wTrack = (function() {
 
 			trackedEvent.workflow = trace;
 
+			lastLog = trackedEvent;
 			console.log(trackedEvent);
 
 			// remove event reference before sending
@@ -288,7 +294,7 @@ var wTrack = (function() {
 		}
 	};
 
-	var TrackedEvent = function(event, element, label, workflow, step, type, sessionId, data) {
+	var TrackedEvent = function(event, element, label, workflow, step, type, data) {
 		this.event = event || null;
 		this.element = element || null;
 		this.label = label || null;
@@ -296,9 +302,13 @@ var wTrack = (function() {
 		this.workflow = workflow || null;
 		this.step = step || null;
 		this.type = type || null;
-		this.sessionId = sessionId || wTrack.sessionId || null;
 
 		this.data = data || {};
+
+		this.session = {
+			id: sessionId || null,
+			userAgent: navigator.userAgent
+		};
 
 		this.timestamp = Date.now();
 	};
@@ -308,6 +318,8 @@ var wTrack = (function() {
 		init: init,
 		registerPlugin: registerPlugin,
 		registerElementType: registerElementType,
+		getLastLog: getLastLog,
+
 		TrackedEvent: TrackedEvent,
 		Queue: Queue,
 		// TODO : remove this from public api
