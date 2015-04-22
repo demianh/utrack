@@ -1,6 +1,7 @@
 
 
 var wTrack = (function() {
+	var appId = null;
 	var sessionId = null;
 	var lastEvent = null;
 	var lastLog = null;
@@ -20,8 +21,9 @@ var wTrack = (function() {
 		dialog: []
 	};
 
-	var init = function(){
+	var init = function(options){
 		sessionId = generateGuid();
+		appId = (options ? (options.appId || null) : null );
 
 		// overwrite global addEventListener Function
 		if (EventTarget){
@@ -314,6 +316,7 @@ var wTrack = (function() {
 			}
 
 			trackedEvent.workflow = trace;
+			trackedEvent.appId = appId;
 
 			lastLog = trackedEvent;
 			console.log(trackedEvent);
@@ -358,7 +361,7 @@ var wTrack = (function() {
 	};
 })();
 
-wTrack.init();
+wTrack.init({appId: 'demo'});
 
 
 
