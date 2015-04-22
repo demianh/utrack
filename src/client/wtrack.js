@@ -5,6 +5,7 @@ var wTrack = (function() {
 	var lastEvent = null;
 	var lastLog = null;
 	var plugins = [];
+	var getters = {};
 	var elementTypes = {
 		types: [],
 		classes: [],
@@ -220,6 +221,27 @@ var wTrack = (function() {
 		}
 	};
 
+	// register a new getter
+	var registerGetter = function(name, func){
+		if (typeof func == "function"){
+			getters[name] = func;
+			console.log('wTrack getter loaded: '+name);
+		} else {
+			console.error('wTrack getter expects a function: '+name);
+		}
+	};
+
+	// call a getter
+	var callGetter = function(name){
+		var value;
+		//debugger;
+		if (typeof getters[name] !== "undefined"){
+			value = getters[name]();
+		}
+		console.log('wTrack getter "'+name+'": '+value);
+		return value;
+	};
+
 	var registerElementType = function(type, classNames, searchDepth){
 		var depth = searchDepth || 1;
 		elementTypes.types.push([type, classNames, depth]);
@@ -283,6 +305,14 @@ var wTrack = (function() {
 		push: function(trackedEvent){
 			traceEvent(trackedEvent);
 
+			// try to get workflow info if not avilable
+			if (!trace.mainnav){
+				trace.mainnav = callGetter('mainnav');
+			}
+			if (!trace.subnav){
+				trace.subnav = callGetter('subnav');
+			}
+
 			trackedEvent.workflow = trace;
 
 			lastLog = trackedEvent;
@@ -317,6 +347,7 @@ var wTrack = (function() {
 	return {
 		init: init,
 		registerPlugin: registerPlugin,
+		registerGetter: registerGetter,
 		registerElementType: registerElementType,
 		getLastLog: getLastLog,
 
@@ -363,7 +394,7 @@ wTrack.registerPlugin('webling.mainnav', true, function(){
 	});
 });
 
-wTrack.registerPlugin('webling.subnnav', true, function(){
+wTrack.registerPlugin('webling.subnav', true, function(){
 	jQuery(document).on('click', '.LibJsV3ComponentViewerPanelList li.LibJsV3ComponentWeblingTreeNodeHead > div, .splitviewMenue li > div', function(event) {
 		wTrack.Queue.push(new wTrack.TrackedEvent(
 			'webling_subnav',
@@ -372,6 +403,32 @@ wTrack.registerPlugin('webling.subnnav', true, function(){
 		));
 	});
 });
+
+
+// =============== Getters =================== //
+
+wTrack.registerGetter('mainnav', function(){
+	return jQuery('.weblingMenue > div > div.selected').text();
+});
+
+wTrack.registerGetter('subnav', function(){
+	var subnav;
+
+	// Member, Material, Webseite, Dokumente, Administration
+	subnav = jQuery('.LibJsV3ComponentViewerPanelList li.LibJsV3ComponentWeblingTreeNodeHead > div.LibJsV3ComponentWeblingTreeNodeSelected:visible').text().trim();
+	if (subnav){
+		return subnav;
+	}
+
+	// Buchhaltung
+	subnav = jQuery('.splitviewMenue li.selected > div:visible').text().trim();
+	if (subnav){
+		return subnav;
+	}
+
+	return subnav;
+});
+
 
 // =============== Custom Elements =================== //
 
