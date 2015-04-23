@@ -2,6 +2,7 @@
 
 var wTrack = (function() {
 	var appId = null;
+	var userId = null;
 	var sessionId = null;
 	var lastEvent = null;
 	var lastLog = null;
@@ -24,6 +25,11 @@ var wTrack = (function() {
 	var init = function(options){
 		sessionId = generateGuid();
 		appId = (options ? (options.appId || null) : null );
+		userId = getCookie('wTrackUserId');
+		if (!userId) {
+			userId = generateGuid();
+			setCookie('wTrackUserId', userId);
+		}
 
 		// overwrite global addEventListener Function
 		if (EventTarget){
@@ -209,6 +215,23 @@ var wTrack = (function() {
 		}
 	};
 
+	var setCookie = function(cname, cvalue) {
+		var d = new Date();
+		d.setTime(d.getTime() + (5*365*24*60*60*1000));
+		document.cookie = cname + "=" + cvalue + "; " + "expires="+d.toUTCString();
+	};
+
+	var getCookie = function(cname) {
+		var name = cname + "=";
+		var ca = document.cookie.split(';');
+		for(var i=0; i<ca.length; i++) {
+			var c = ca[i];
+			while (c.charAt(0)==' ') c = c.substring(1);
+			if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
+		}
+		return "";
+	};
+
 	// register a new plugin
 	var registerPlugin = function(name, waitForDom, init){
 		if(!waitForDom || document.readyState === "complete") {
@@ -340,6 +363,7 @@ var wTrack = (function() {
 
 		this.session = {
 			id: sessionId || null,
+			userId: userId || null,
 			userAgent: navigator.userAgent
 		};
 
