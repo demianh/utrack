@@ -378,7 +378,15 @@ wTrack.registerPlugin('jquery.ui.dialog', true, function(){
 	});
 	jQuery(window).bind("dialogopen", function(event, ui) {
 		// getting the dialog title is kind of an ugly hack
-		var dialogTitle = jQuery(event.target.parentNode.children).find(".ui-dialog-title").text();
+		var dialogTitle = jQuery(event.target.parentNode.children).find(".ui-dialog-title").text().trim();
+
+		if (dialogTitle.length < 1){
+			dialogTitle = '[untitled]';
+		}
+
+		// remove numbers from titles to make them comparable
+		dialogTitle = dialogTitle.replace(/[0-9]+/g, "X");
+
 		wTrack.Queue.push(new wTrack.TrackedEvent(
 			'dialog_open',
 			'dialog',
