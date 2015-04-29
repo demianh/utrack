@@ -44,7 +44,7 @@ var auth = function (req, res, next) {
 	}
 };
 
-app.use(cors());
+app.use(cors({origin: true}));
 app.use('/client', express.static(__dirname + '/../client'));
 app.use('/app', auth, express.static(__dirname + '/../frontend'));
 app.use('/screenshots', auth, express.static(__dirname + '/../backend/screenshots'));
