@@ -1,3 +1,4 @@
 node_modules
 src/frontend/vendor
 src/backend/screenshots/*.png
+src/backend/_config.json

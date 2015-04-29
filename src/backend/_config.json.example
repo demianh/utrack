@@ -1,0 +1,15 @@
+{
+	"basicAuth": {
+		"user": "demo",
+		"pass": "demo"
+	},
+	"ssl": {
+
+	},
+	"mongoDB": {
+		"connection": "mongodb://127.0.0.1:27017/wtrack"
+	},
+	"webserver": {
+		"port": 3000
+	}
+}

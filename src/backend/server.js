@@ -8,10 +8,12 @@ var screenshot = require('./screenshot.js')();
 var MongoClient = require('mongodb').MongoClient;
 var queryApi = require('./query');
 
+var config = require('./_config.json');
+
 
 // Establish Database Connection
 var DB = null;
-MongoClient.connect('mongodb://127.0.0.1:27017/wtrack', function(err, connection) {
+MongoClient.connect(config.mongoDB.connection, function(err, connection) {
 	if(err) throw err;
 	DB = connection;
 });
@@ -27,7 +29,7 @@ var auth = function (req, res, next) {
 	if (!user || !user.name || !user.pass) {
 		return unauthorized(res);
 	}
-	if (user.name === 'foo' && user.pass === 'bar') {
+	if (user.name === config.basicAuth.user && user.pass === config.basicAuth.pass) {
 		return next();
 	} else {
 		return unauthorized(res);
@@ -57,10 +59,6 @@ app.get('*', function(req, res){
 	res.status(404).send('<h1>Not Found</h1><p>The requested URL was not found on this server.</p>');
 });
 
-http.listen(3000, function(){
-	console.log('listening on *:3000');
-});
-
 
 // ################### Websockets ###################
 
@@ -83,4 +81,8 @@ io.on('connection', function(socket){
 		// persist data in DB
 		DB.collection('log').insert(copy, function(err, docs) {});
 	});
+});
+
+http.listen(config.webserver.port, function(){
+	console.log('listening on *:'+config.webserver.port);
 });
