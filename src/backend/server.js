@@ -11,10 +11,12 @@ var queryApi = require('./query');
 
 var config = require('./_config.json');
 
-var privateKey  = fs.readFileSync(config.ssl.privateKey, 'utf8');
-var certificate = fs.readFileSync(config.ssl.certificate, 'utf8');
-var credentials = {key: privateKey, cert: certificate};
-var httpsServer = https.createServer(credentials, app);
+if (config.ssl.enabled){
+	var privateKey  = fs.readFileSync(config.ssl.privateKey, 'utf8');
+	var certificate = fs.readFileSync(config.ssl.certificate, 'utf8');
+	var credentials = {key: privateKey, cert: certificate};
+	var httpsServer = https.createServer(credentials, app);
+}
 
 // Establish Database Connection
 var DB = null;
@@ -42,6 +44,7 @@ var auth = function (req, res, next) {
 };
 
 app.use('/app', auth, express.static(__dirname + '/../frontend'));
+app.use('/client', auth, express.static(__dirname + '/../client'));
 app.use('/screenshots', auth, express.static(__dirname + '/../backend/screenshots'));
 
 app.get('/', function(req, res){
@@ -92,6 +95,8 @@ http.listen(config.webserver.port, function(){
 	console.log('http listening on *:'+config.webserver.port);
 });
 
-httpsServer.listen(config.webserver.portSSL, function(){
-	console.log('https listening on *:'+config.webserver.portSSL);
-});
+if (config.ssl.enabled) {
+	httpsServer.listen(config.webserver.portSSL, function () {
+		console.log('https listening on *:' + config.webserver.portSSL);
+	});
+}

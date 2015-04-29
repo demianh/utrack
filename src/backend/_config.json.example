@@ -4,6 +4,7 @@
 		"pass": "demo"
 	},
 	"ssl": {
+		"enabled": false,
 		"privateKey": "sslcert/server.key",
 		"certificate": "sslcert/server.crt"
 	},
