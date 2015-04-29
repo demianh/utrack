@@ -4,12 +4,14 @@
 		"pass": "demo"
 	},
 	"ssl": {
-
+		"privateKey": "sslcert/server.key",
+		"certificate": "sslcert/server.crt"
 	},
 	"mongoDB": {
 		"connection": "mongodb://127.0.0.1:27017/wtrack"
 	},
 	"webserver": {
-		"port": 3000
+		"port": 3000,
+		"portSSL": 3001
 	}
 }

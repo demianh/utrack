@@ -1,6 +1,7 @@
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
+var https = require('https');
 var basicAuth = require('basic-auth');
 var fs = require('fs');
 var io = require('socket.io')(http);
@@ -10,6 +11,10 @@ var queryApi = require('./query');
 
 var config = require('./_config.json');
 
+var privateKey  = fs.readFileSync(config.ssl.privateKey, 'utf8');
+var certificate = fs.readFileSync(config.ssl.certificate, 'utf8');
+var credentials = {key: privateKey, cert: certificate};
+var httpsServer = https.createServer(credentials, app);
 
 // Establish Database Connection
 var DB = null;
@@ -84,5 +89,9 @@ io.on('connection', function(socket){
 });
 
 http.listen(config.webserver.port, function(){
-	console.log('listening on *:'+config.webserver.port);
+	console.log('http listening on *:'+config.webserver.port);
+});
+
+httpsServer.listen(config.webserver.portSSL, function(){
+	console.log('https listening on *:'+config.webserver.portSSL);
 });
