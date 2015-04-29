@@ -1,23 +1,25 @@
-var express = require('express');
-var app = express();
-var http = require('http').Server(app);
-var https = require('https');
-var cors = require('cors');
-var basicAuth = require('basic-auth');
+var config = require('./_config.json');
 var fs = require('fs');
-var io = require('socket.io')(http);
+var express = require('express');
+var cors = require('cors');
+var socketio = require('socket.io');
+var basicAuth = require('basic-auth');
 var screenshot = require('./screenshot.js')();
 var MongoClient = require('mongodb').MongoClient;
 var queryApi = require('./query');
 
-var config = require('./_config.json');
-
+// Init Server
+var app = express();
+var server;
 if (config.ssl.enabled){
 	var privateKey  = fs.readFileSync(config.ssl.privateKey, 'utf8');
 	var certificate = fs.readFileSync(config.ssl.certificate, 'utf8');
 	var credentials = {key: privateKey, cert: certificate};
-	var httpsServer = https.createServer(credentials, app);
+	server = require('https').Server(credentials, app);
+} else {
+	server = require('http').Server(app);
 }
+var io = socketio(server);
 
 // Establish Database Connection
 var DB = null;
@@ -93,12 +95,9 @@ io.on('connection', function(socket){
 	});
 });
 
-http.listen(config.webserver.port, function(){
-	console.log('http listening on *:'+config.webserver.port);
+server.listen(config.webserver.port, function(){
+	if (config.ssl.enabled){
+		console.log('SSL Enabled');
+	}
+	console.log('Listening on *:'+config.webserver.port);
 });
-
-if (config.ssl.enabled) {
-	httpsServer.listen(config.webserver.portSSL, function () {
-		console.log('https listening on *:' + config.webserver.portSSL);
-	});
-}
