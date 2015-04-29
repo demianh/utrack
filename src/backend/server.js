@@ -49,8 +49,8 @@ app.use(function (req, res, next) {
 	next();
 });
 
+app.use('/client', express.static(__dirname + '/../client'));
 app.use('/app', auth, express.static(__dirname + '/../frontend'));
-app.use('/client', auth, express.static(__dirname + '/../client'));
 app.use('/screenshots', auth, express.static(__dirname + '/../backend/screenshots'));
 
 app.get('/', function(req, res){
