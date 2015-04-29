@@ -1,4 +1,5 @@
 {
 	"directory": "vendor/",
-	"analytics": false
+	"analytics": false,
+	"allow_root": true
 }
