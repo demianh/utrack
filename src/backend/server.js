@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var https = require('https');
+var cors = require('cors');
 var basicAuth = require('basic-auth');
 var fs = require('fs');
 var io = require('socket.io')(http);
@@ -43,12 +44,7 @@ var auth = function (req, res, next) {
 	}
 };
 
-// Send CORS Headers
-app.use(function (req, res, next) {
-	res.setHeader('Access-Control-Allow-Origin', '*');
-	next();
-});
-
+app.use(cors());
 app.use('/client', express.static(__dirname + '/../client'));
 app.use('/app', auth, express.static(__dirname + '/../frontend'));
 app.use('/screenshots', auth, express.static(__dirname + '/../backend/screenshots'));
