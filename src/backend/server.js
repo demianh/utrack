@@ -1,7 +1,7 @@
 var express = require('express');
 var app = express();
-var basicAuth = require('basic-auth');
 var http = require('http').Server(app);
+var basicAuth = require('basic-auth');
 var fs = require('fs');
 var io = require('socket.io')(http);
 var screenshot = require('./screenshot.js')();
@@ -21,7 +21,7 @@ MongoClient.connect('mongodb://127.0.0.1:27017/wtrack', function(err, connection
 var auth = function (req, res, next) {
 	function unauthorized(res) {
 		res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
-		return res.send(401);
+		return res.sendStatus(401);
 	}
 	var user = basicAuth(req);
 	if (!user || !user.name || !user.pass) {
@@ -35,20 +35,10 @@ var auth = function (req, res, next) {
 };
 
 app.use('/app', auth, express.static(__dirname + '/../frontend'));
+app.use('/screenshots', auth, express.static(__dirname + '/../backend/screenshots'));
 
 app.get('/', function(req, res){
-	//res.sendFile(__dirname + '/index.html');
-	res.send('<h3>wTrack Server</h3><a href="http://localhost/projects/demianh/wtrack/src/frontend/">Admin Tool</a><br><a href="/api">API</a>');
-});
-
-app.get("/screenshots/*", function(req, res){
-	fs.exists(__dirname + req.path, function (exists) {
-		if (exists){
-			res.sendFile(__dirname + req.path);
-		} else {
-			res.send('<h1>Not Found</h1><p>The requested URL was not found on this server.</p>', 404);
-		}
-	});
+	res.send('<h3>wTrack Server</h3><a href="/app">Admin Tool</a><br><a href="/api">API</a>');
 });
 
 // Query JSON API
@@ -64,7 +54,7 @@ Object.keys(queryApi).forEach(function(endpoint) {
 
 // finally 404 Route
 app.get('*', function(req, res){
-	res.send('<h1>Not Found</h1><p>The requested URL was not found on this server.</p>', 404);
+	res.status(404).send('<h1>Not Found</h1><p>The requested URL was not found on this server.</p>');
 });
 
 http.listen(3000, function(){
