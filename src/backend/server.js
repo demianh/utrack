@@ -43,6 +43,12 @@ var auth = function (req, res, next) {
 	}
 };
 
+// Send CORS Headers
+app.use(function (req, res, next) {
+	res.setHeader('Access-Control-Allow-Origin', '*');
+	next();
+});
+
 app.use('/app', auth, express.static(__dirname + '/../frontend'));
 app.use('/client', auth, express.static(__dirname + '/../client'));
 app.use('/screenshots', auth, express.static(__dirname + '/../backend/screenshots'));
