@@ -1,6 +1,6 @@
 'use strict';
 
-var app = angular.module('wTrack', ['ui.router']);
+var app = angular.module('wTrack', ['ui.router', 'highcharts-ng']);
 
 app.config(function($stateProvider, $urlRouterProvider) {
 	//
@@ -25,6 +25,16 @@ app.config(function($stateProvider, $urlRouterProvider) {
 			url: "/statistics/tabs",
 			templateUrl: "templates/statistics/tabs.html",
 			controller: "TabsCtrl"
+		})
+		.state('usage', {
+			url: "/statistics/usage",
+			templateUrl: "templates/statistics/usage.html",
+			controller: "UsageCtrl"
+		})
+		.state('workflows', {
+			url: "/statistics/workflows",
+			templateUrl: "templates/statistics/workflows.html",
+			controller: "WorkflowsCtrl"
 		});
 });
 
