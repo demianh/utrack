@@ -59,7 +59,8 @@ var wTrack = (function() {
 		};
 
 		// start socket connection
-		socket = io('http://localhost:3000');
+		//socket = io('http://localhost:3000');
+		socket = io('https://log.usystems.ch:3000');
 		Queue.push(new TrackedEvent(
 			'session_start',
 			'session',
