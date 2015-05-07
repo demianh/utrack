@@ -286,7 +286,8 @@ exports.endpoints.push([
 			{$group: {
 				_id: '$session.id',
 				timestamp: {$first: '$timestamp'},
-				session: {$first: '$session'}
+				session: {$first: '$session'},
+				appId: {$first: '$appId'}
 			}}
 		], function (err, data) {
 			res.json(data);
