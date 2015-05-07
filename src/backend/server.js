@@ -59,12 +59,9 @@ app.get('/', function(req, res){
 app.get('/api', auth, queryApi._documentation);
 
 // auto generate api routes
-Object.keys(queryApi).forEach(function(endpoint) {
-	// ignore endpoints starting with _
-	if (endpoint.charAt(0) != '_'){
-		app.get('/api/'+endpoint, auth, queryApi[endpoint]);
-	}
-});
+for (var i in queryApi.endpoints){
+	app.get('/api/'+queryApi.endpoints[i][0], auth, queryApi.endpoints[i][1]);
+}
 
 // finally 404 Route
 app.get('*', function(req, res){
