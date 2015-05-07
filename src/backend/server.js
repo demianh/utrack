@@ -6,7 +6,7 @@ var socketio = require('socket.io');
 var basicAuth = require('basic-auth');
 var screenshot = require('./screenshot.js')();
 var MongoClient = require('mongodb').MongoClient;
-var queryApi = require('./query');
+var queryApi = require('./queryApi');
 
 // Init Server
 var app = express();
