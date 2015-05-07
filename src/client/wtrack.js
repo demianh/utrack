@@ -84,12 +84,13 @@ var wTrack = (function() {
 			return;
 		}
 		lastEvent = event;
+		event.target = event.target || event.srcElement;
 
 		// log event
 		var te = new TrackedEvent();
 		te.event = event.type;
-		te.element = getElementType(event.srcElement);
-		te.label = getElementLabel(event.srcElement);
+		te.element = getElementType(event.target);
+		te.label = getElementLabel(event.target);
 		if (event.x){
 			te.data.coordinates = {x: event.x, y: event.y};
 		}
@@ -99,7 +100,7 @@ var wTrack = (function() {
 
 		// focus
 		if (event.type == 'keypress'){
-			if (event.srcElement.tagName != 'INPUT'){
+			if (event.target.tagName != 'INPUT'){
 				return;
 			}
 			te.data.input = String.fromCharCode(event.charCode);
@@ -427,7 +428,7 @@ wTrack.registerPlugin('webling.mainnav', true, function(){
 		wTrack.Queue.push(new wTrack.TrackedEvent(
 			'webling_mainnav',
 			null,
-			wTrack.getElementLabel(event.srcElement)
+			wTrack.getElementLabel(event.target || event.srcElement)
 		));
 	});
 });
@@ -437,7 +438,7 @@ wTrack.registerPlugin('webling.subnav', true, function(){
 		wTrack.Queue.push(new wTrack.TrackedEvent(
 			'webling_subnav',
 			null,
-			wTrack.getElementLabel(event.srcElement)
+			wTrack.getElementLabel(event.target || event.srcElement)
 		));
 	});
 });
