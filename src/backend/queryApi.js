@@ -281,7 +281,14 @@ exports.endpoints.push([
 exports.endpoints.push([
 	'sessions',
 	function(req, res) {
-		db.getCollection('log').distinct('session', function (err, data) {
+		db.getCollection('log').aggregate([
+			{$sort: {timestamp: 1}},
+			{$group: {
+				_id: '$session.id',
+				timestamp: {$first: '$timestamp'},
+				session: {$first: '$session'}
+			}}
+		], function (err, data) {
 			res.json(data);
 		})
 	}

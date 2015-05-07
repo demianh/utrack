@@ -12,12 +12,14 @@
 					<p class="help-block">List of Sessions.</p>
 					<table class="table table-bordered">
 						<tbody><tr>
+							<th>Time</th>
 							<th>Session</th>
 							<th>User</th>
 						</tr>
 						<tr ng-repeat="(key, value) in data">
-							<td><a href="#/sessions/{{value.id}}">{{value.id}}</a></td>
-							<td><a href="#/users/{{value.userId}}">{{value.userId}}</a></td>
+							<td>{{value.timestamp | date:'dd.MM.yyyy, HH:mm'}}</a></td>
+							<td><a href="#/sessions/{{value.session.id}}">{{value.session.id}}</a></td>
+							<td><a href="#/users/{{value.session.userId}}">{{value.session.userId}}</a></td>
 						</tr>
 						</tbody>
 					</table>
