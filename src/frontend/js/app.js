@@ -35,6 +35,16 @@ app.config(function($stateProvider, $urlRouterProvider) {
 			url: "/statistics/workflows",
 			templateUrl: "templates/statistics/workflows.html",
 			controller: "WorkflowsCtrl"
+		})
+		.state('sessions-details', {
+			url: "/sessions/:id",
+			templateUrl: "templates/sessions/details.html",
+			controller: "SessionsDetailsCtrl"
+		})
+		.state('sessions', {
+			url: "/sessions",
+			templateUrl: "templates/sessions/list.html",
+			controller: "SessionsListCtrl"
 		});
 });
 
