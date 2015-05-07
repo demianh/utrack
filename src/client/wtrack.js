@@ -22,6 +22,8 @@ var wTrack = (function() {
 		dialog: []
 	};
 
+	var debug = false;
+
 	var init = function(options){
 		sessionId = generateGuid();
 		appId = (options ? (options.appId || null) : null );
@@ -237,12 +239,12 @@ var wTrack = (function() {
 	var registerPlugin = function(name, waitForDom, init){
 		if(!waitForDom || document.readyState === "complete") {
 			init();
-			console.log('wTrack plugin loaded: '+name);
+			if(debug) console.log('wTrack plugin loaded: '+name);
 		} else {
 			// wait until dom is loaded
 			document.addEventListener("DOMContentLoaded", function () {
 				init();
-				console.log('wTrack plugin loaded: '+name);
+				if(debug) console.log('wTrack plugin loaded: '+name);
 			}, false);
 		}
 	};
@@ -251,7 +253,7 @@ var wTrack = (function() {
 	var registerGetter = function(name, func){
 		if (typeof func == "function"){
 			getters[name] = func;
-			console.log('wTrack getter loaded: '+name);
+			if(debug) console.log('wTrack getter loaded: '+name);
 		} else {
 			console.error('wTrack getter expects a function: '+name);
 		}
@@ -264,7 +266,7 @@ var wTrack = (function() {
 		if (typeof getters[name] !== "undefined"){
 			value = getters[name]();
 		}
-		console.log('wTrack getter "'+name+'": '+value);
+		if(debug) console.log('wTrack getter "'+name+'": '+value);
 		return value;
 	};
 
@@ -320,7 +322,7 @@ var wTrack = (function() {
 			trace.dialog.pop();
 		}
 
-		console.log(trace);
+		if(debug) console.log(trace);
 	};
 
 	var getLastLog = function(){
@@ -343,7 +345,7 @@ var wTrack = (function() {
 			trackedEvent.appId = appId;
 
 			lastLog = trackedEvent;
-			console.log(trackedEvent);
+			if(debug) console.log(trackedEvent);
 
 			// remove event reference before sending
 			trackedEvent.data.event = null;
@@ -386,7 +388,7 @@ var wTrack = (function() {
 	};
 })();
 
-wTrack.init({appId: 'demo'});
+wTrack.init({appId: window.location.hostname});
 
 
 
