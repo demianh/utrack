@@ -19,7 +19,7 @@
 						</tr>
 						<tr ng-repeat="(key, value) in data">
 							<td>{{value.timestamp | date:'dd.MM.yyyy, HH:mm'}}</a></td>
-							<td>{{value.appId}}</a></td>
+							<td>{{value.session.appId}}</a></td>
 							<td><a href="#/sessions/{{value.session.id}}">{{value.session.id}}</a></td>
 							<td><a href="#/users/{{value.session.userId}}">{{value.session.userId}}</a></td>
 						</tr>

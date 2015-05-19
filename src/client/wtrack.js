@@ -1,6 +1,17 @@
 
 
 var wTrack = (function() {
+
+	/*** Options ***/
+
+	// list of event types that are tracked
+	var trackedEvents = ['click','focus','blur','keypress','load'];
+
+	// enable verbose console log output
+	var debug = false;
+
+	/*** Local Variables ***/
+
 	var appId = null;
 	var userId = null;
 	var sessionId = null;
@@ -14,7 +25,6 @@ var wTrack = (function() {
 		maxDepth: 1
 	};
 	var socket = null;
-	var trackedEvents = ['click','focus','blur','keypress','load'];
 	var keyboardStack = [];
 	var trace = {
 		mainnav: null,
@@ -22,7 +32,7 @@ var wTrack = (function() {
 		dialog: []
 	};
 
-	var debug = false;
+	/*** Local Functions ***/
 
 	var init = function(options){
 		sessionId = generateGuid();
@@ -33,13 +43,16 @@ var wTrack = (function() {
 			setCookie('wTrackUserId', userId);
 		}
 
-		// overwrite global addEventListener Function
+		// overwrite global addEventListener function with own function
 		if (EventTarget){
 			var oldAddEventListener = EventTarget.prototype.addEventListener;
 			EventTarget.prototype.addEventListener = function(eventName, eventHandler) {
 				oldAddEventListener.call(this, eventName, function(event) {
+					// call the event handler, equal to the original function
 					eventHandler(event);
+					// check if this type of event is tracked
 					if (trackedEvents.indexOf(event.type) >= 0) {
+						// track event and enrich with more data
 						trackEvent(event);
 					}
 				});
@@ -77,6 +90,7 @@ var wTrack = (function() {
 		});
 	};
 
+	// enriches the event data with additional data
 	var trackEvent = function(event){
 
 		// ignore events that have been logged already
@@ -135,6 +149,7 @@ var wTrack = (function() {
 
 	};
 
+	// get any text that is suitable as an element label
 	var getElementLabel = function(element){
 		var parseElement = function(element){
 			if (element.innerText){
@@ -184,6 +199,7 @@ var wTrack = (function() {
 		return label;
 	};
 
+	// get element type and check for registered custom elements
 	var getElementType = function(element){
 		// check if element contains any of the classes
 		var detectedClass = elementHasClassRecursive(element, elementTypes.classes, elementTypes.maxDepth);
@@ -202,6 +218,7 @@ var wTrack = (function() {
 		return elementName;
 	};
 
+	// checks parent elements recursively for classes
 	var elementHasClassRecursive = function(element, classNames, depth){
 		if (!element || depth <= 0){
 			return false;
@@ -250,7 +267,9 @@ var wTrack = (function() {
 		}
 	};
 
-	// register a new getter
+	// register a new custom getter
+	// getters can be used to inject application specific information
+	// - currently supported: mainnav, subnav
 	var registerGetter = function(name, func){
 		if (typeof func == "function"){
 			getters[name] = func;
@@ -271,6 +290,9 @@ var wTrack = (function() {
 		return value;
 	};
 
+	// register a custom element type
+	// this can be used to introduce own application specific element types
+	// e.g special elements that are marked with a class instead a special tag name
 	var registerElementType = function(type, classNames, searchDepth){
 		var depth = searchDepth || 1;
 		elementTypes.types.push([type, classNames, depth]);
@@ -330,7 +352,10 @@ var wTrack = (function() {
 		return lastLog;
 	};
 
+	// the event queue that sends messages to the backend
 	var Queue = {
+
+		// push elements into the queue and send to the backend.
 		push: function(trackedEvent){
 			traceEvent(trackedEvent);
 
@@ -343,7 +368,6 @@ var wTrack = (function() {
 			}
 
 			trackedEvent.workflow = trace;
-			trackedEvent.appId = appId;
 
 			lastLog = trackedEvent;
 			if(debug) console.log(trackedEvent);
@@ -354,27 +378,25 @@ var wTrack = (function() {
 		}
 	};
 
-	var TrackedEvent = function(event, element, label, workflow, step, type, data) {
+	var TrackedEvent = function(event, element, label, workflow, data) {
 		this.event = event || null;
 		this.element = element || null;
 		this.label = label || null;
-
 		this.workflow = workflow || null;
-		this.step = step || null;
-		this.type = type || null;
-
 		this.data = data || {};
 
 		this.session = {
 			id: sessionId || null,
 			userId: userId || null,
+			appId: appId || null,
 			userAgent: navigator.userAgent
 		};
 
 		this.timestamp = Date.now();
 	};
 
-	// Public API
+	/*** Expose Public API Functions ***/
+
 	return {
 		init: init,
 		registerPlugin: registerPlugin,
