@@ -4,11 +4,18 @@ var wTrack = (function() {
 
 	/*** Options ***/
 
-	// list of event types that are tracked
+	/**
+	 * list of event types that are tracked
+	 * @type {string[]}
+	 */
 	var trackedEvents = ['click','focus','blur','keypress','load'];
 
-	// enable verbose console log output
+	/**
+	 * enable verbose console log output
+	 * @type {boolean}
+	 */
 	var debug = false;
+
 
 	/*** Local Variables ***/
 
@@ -17,7 +24,6 @@ var wTrack = (function() {
 	var sessionId = null;
 	var lastEvent = null;
 	var lastLog = null;
-	var plugins = [];
 	var getters = {};
 	var elementTypes = {
 		types: [],
@@ -239,7 +245,7 @@ var wTrack = (function() {
 	/**
 	 * checks parent elements recursively for classes
 	 * @param {HTMLElement} element - source html element
-	 * @param {array} classNames - array of classes to check for
+	 * @param {string[]} classNames - array of classes to check for
 	 * @param {int} depth - current search depth
 	 * @returns {boolean}
 	 */
@@ -325,11 +331,10 @@ var wTrack = (function() {
 	/**
 	 * call a getter by name
 	 * @param {string} name - getter name
-	 * @returns {string}
+	 * @returns {string|null}
 	 */
 	var callGetter = function(name){
-		var value;
-		//debugger;
+		var value = null;
 		if (typeof getters[name] !== "undefined"){
 			value = getters[name]();
 		}
@@ -343,7 +348,7 @@ var wTrack = (function() {
 	 * e.g elements that are marked with a class <span class="button">
 	 * instead of using a tag <button> can be rewritten
 	 * @param {string} type - the name of the new type
-	 * @param {array} classNames - array of classes to search for
+	 * @param {string[]} classNames - array of classes to search for
 	 * @param {int} searchDepth - how many levels to search for (starting at source element, going up the parents)
 	 */
 	var registerElementType = function(type, classNames, searchDepth){
@@ -556,7 +561,6 @@ wTrack.registerGetter('subnav', function(){
 // =============== Custom Elements =================== //
 
 wTrack.registerElementType('button', ['button', 'buttonFirst'], 2);
-wTrack.registerElementType('treeNode', ['LibJsV3ComponentWeblingTreeNodeHead']);
+wTrack.registerElementType('treeNode', ['LibJsV3ComponentWeblingTreeNodeHead'], 1);
 wTrack.registerElementType('mainNav', ['weblingMenue'], 4);
 wTrack.registerElementType('template', ['templatePreview'], 2);
-
