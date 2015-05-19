@@ -6,7 +6,7 @@ git pull origin master
 # Install Packages
 npm install
 
-cd src/frontend
+cd src/dashboard
 bower install
 cd ../../
 

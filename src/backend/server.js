@@ -48,11 +48,11 @@ var auth = function (req, res, next) {
 
 app.use(cors({origin: true, credentials: true}));
 app.use('/client', express.static(__dirname + '/../client'));
-app.use('/app', auth, express.static(__dirname + '/../frontend'));
+app.use('/dashboard', auth, express.static(__dirname + '/../dashboard'));
 app.use('/screenshots', auth, express.static(__dirname + '/../backend/screenshots'));
 
 app.get('/', function(req, res){
-	res.send('<h3>wTrack Server</h3><a href="/app">Admin Tool</a><br><a href="/api">API</a>');
+	res.send('<h3>wTrack</h3><a href="/dashboard">Dashboard</a><br><a href="/api">API</a>');
 });
 
 // Query JSON API
