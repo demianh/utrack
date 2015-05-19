@@ -1,24 +1,6 @@
 
 var MongoClient = require('mongodb').MongoClient;
 
-var out = function(err, docs) {
-	console.log("-------------------------------------------");
-	if (err){
-		console.log(err);
-	} else {
-		console.log(docs);
-	}
-};
-
-var outJSON = function(err, docs) {
-	console.log("-------------------------------------------");
-	if (err){
-		console.log(err);
-	} else {
-		console.log(docs);
-	}
-};
-
 // Establish Database Connection
 var db = null;
 MongoClient.connect('mongodb://127.0.0.1:27017/wtrack', function(err, connection) {

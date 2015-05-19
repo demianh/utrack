@@ -77,6 +77,7 @@ io.on('connection', function(socket){
 
 		var imageName = null;
 /*		if (eventData && eventData.data && eventData.data.html){
+			// TODO: move screenshot path to config
 			imageName = 'screenshots/wbl_' + Date.now() + '.png';
 			screenshot.fromHTML(eventData.data, imageName);
 		}*/
