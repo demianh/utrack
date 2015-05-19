@@ -34,6 +34,10 @@ var wTrack = (function() {
 
 	/*** Local Functions ***/
 
+	/**
+	 * wTrack initialization
+	 * @param {object} options - init options, currently supported: {string} appId - unique application identifier
+	 */
 	var init = function(options){
 		sessionId = generateGuid();
 		appId = (options ? (options.appId || null) : null );
@@ -83,6 +87,10 @@ var wTrack = (function() {
 		));
 	};
 
+	/**
+	 * generate rfc4122 version 4 compliant guid
+	 * @returns {string|*} guid
+	 */
 	var generateGuid = function(){
 		return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
 			var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
@@ -90,7 +98,10 @@ var wTrack = (function() {
 		});
 	};
 
-	// enriches the event data with additional data
+	/**
+	 * enriches the event data with additional data
+	 * @param {Event} event - Source event object
+	 */
 	var trackEvent = function(event){
 
 		// ignore events that have been logged already
@@ -149,7 +160,10 @@ var wTrack = (function() {
 
 	};
 
-	// get any text that is suitable as an element label
+	/**
+	 * tries to get any text that is suitable as an element label
+	 * @param {HTMLElement} element - source html element
+	 */
 	var getElementLabel = function(element){
 		var parseElement = function(element){
 			if (element.innerText){
@@ -199,7 +213,11 @@ var wTrack = (function() {
 		return label;
 	};
 
-	// get element type and check for registered custom elements
+	/**
+	 * get element type and check for registered custom elements
+	 * @param {HTMLElement} element - source html element
+	 * @returns {string}
+	 */
 	var getElementType = function(element){
 		// check if element contains any of the classes
 		var detectedClass = elementHasClassRecursive(element, elementTypes.classes, elementTypes.maxDepth);
@@ -218,7 +236,13 @@ var wTrack = (function() {
 		return elementName;
 	};
 
-	// checks parent elements recursively for classes
+	/**
+	 * checks parent elements recursively for classes
+	 * @param {HTMLElement} element - source html element
+	 * @param {array} classNames - array of classes to check for
+	 * @param {int} depth - current search depth
+	 * @returns {boolean}
+	 */
 	var elementHasClassRecursive = function(element, classNames, depth){
 		if (!element || depth <= 0){
 			return false;
@@ -236,12 +260,22 @@ var wTrack = (function() {
 		}
 	};
 
+	/**
+	 * set cookie
+	 * @param {string} cname - cookie name
+	 * @param {string} cvalue - cookie value
+	 */
 	var setCookie = function(cname, cvalue) {
 		var d = new Date();
 		d.setTime(d.getTime() + (5*365*24*60*60*1000));
 		document.cookie = cname + "=" + cvalue + "; " + "expires="+d.toUTCString();
 	};
 
+	/**
+	 * get cookie
+	 * @param {string} cname - cookie name
+	 * @returns {string}
+	 */
 	var getCookie = function(cname) {
 		var name = cname + "=";
 		var ca = document.cookie.split(';');
@@ -253,7 +287,12 @@ var wTrack = (function() {
 		return "";
 	};
 
-	// register a new plugin
+	/**
+	 * register a new plugin
+	 * @param {string} name - plugin identifier
+	 * @param {boolean} waitForDom - set true if initialization should wait until DOM is loaded
+	 * @param {function} init - plugin init function
+	 */
 	var registerPlugin = function(name, waitForDom, init){
 		if(!waitForDom || document.readyState === "complete") {
 			init();
@@ -267,9 +306,12 @@ var wTrack = (function() {
 		}
 	};
 
-	// register a new custom getter
-	// getters can be used to inject application specific information
-	// - currently supported: mainnav, subnav
+	/**
+	 * register a new custom getter
+	 * getters can be used to inject application specific information
+	 * @param {string} name - name of the getter (currently supported: mainnav, subnav)
+	 * @param {function} func - getter callback function
+	 */
 	var registerGetter = function(name, func){
 		if (typeof func == "function"){
 			getters[name] = func;
@@ -279,7 +321,12 @@ var wTrack = (function() {
 		}
 	};
 
-	// call a getter
+
+	/**
+	 * call a getter by name
+	 * @param {string} name - getter name
+	 * @returns {string}
+	 */
 	var callGetter = function(name){
 		var value;
 		//debugger;
@@ -290,9 +337,15 @@ var wTrack = (function() {
 		return value;
 	};
 
-	// register a custom element type
-	// this can be used to introduce own application specific element types
-	// e.g special elements that are marked with a class instead a special tag name
+	/**
+	 * register a custom element type
+	 * this can be used to introduce own application specific element types
+	 * e.g elements that are marked with a class <span class="button">
+	 * instead of using a tag <button> can be rewritten
+	 * @param {string} type - the name of the new type
+	 * @param {array} classNames - array of classes to search for
+	 * @param {int} searchDepth - how many levels to search for (starting at source element, going up the parents)
+	 */
 	var registerElementType = function(type, classNames, searchDepth){
 		var depth = searchDepth || 1;
 		elementTypes.types.push([type, classNames, depth]);
@@ -310,6 +363,10 @@ var wTrack = (function() {
 		elementTypes.classes = classes;
 	};
 
+	/**
+	 * Build the trace by processing the events
+	 * @param {TrackedEvent} trackedEvent - the tracked event
+	 */
 	var traceEvent = function(trackedEvent){
 		function endsWith(str, suffix) {
 			return str.indexOf(suffix, str.length - suffix.length) !== -1;
@@ -348,13 +405,11 @@ var wTrack = (function() {
 		if(debug) console.log(trace);
 	};
 
-	var getLastLog = function(){
-		return lastLog;
-	};
-
-	// the event queue that sends messages to the backend
+	/**
+	 * The Event Queue which receives events and sends them to the backend
+	 * @type {{push: Function}} - receives a TrackedEvent object and sends it to the backend
+	 */
 	var Queue = {
-
 		// push elements into the queue and send to the backend.
 		push: function(trackedEvent){
 			traceEvent(trackedEvent);
@@ -378,6 +433,15 @@ var wTrack = (function() {
 		}
 	};
 
+	/**
+	 * TrackedEvent Object which contains all data that is beeing sent to the backend
+	 * @param {string} event - event name
+	 * @param {string} element - tag name of source element
+	 * @param {string} label - text, label, title or description of element
+	 * @param {object} workflow - worflow object
+	 * @param {object} data - additional event data (e.g html source, sizes etc.)
+	 * @constructor
+	 */
 	var TrackedEvent = function(event, element, label, workflow, data) {
 		this.event = event || null;
 		this.element = element || null;
@@ -402,8 +466,6 @@ var wTrack = (function() {
 		registerPlugin: registerPlugin,
 		registerGetter: registerGetter,
 		registerElementType: registerElementType,
-		getLastLog: getLastLog,
-
 		TrackedEvent: TrackedEvent,
 		Queue: Queue,
 		// TODO : remove this from public api
@@ -434,7 +496,7 @@ wTrack.registerPlugin('jquery.ui.dialog', true, function(){
 			dialogTitle = '[untitled]';
 		}
 
-		// remove numbers from titles to make them comparable
+		// remove numbers from titles and replace with X to make the strings comparable
 		dialogTitle = dialogTitle.replace(/[0-9]+/g, "X");
 
 		wTrack.Queue.push(new wTrack.TrackedEvent(
