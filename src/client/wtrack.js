@@ -11,6 +11,12 @@ var wTrack = (function() {
 	var trackedEvents = ['click','focus','blur','keypress','load'];
 
 	/**
+	 * URL to server where the server.js is running
+	 * @type {string}
+	 */
+	var remoteUrl = 'https://log.usystems.ch:3000';
+
+	/**
 	 * enable verbose console log output
 	 * @type {boolean}
 	 */
@@ -84,8 +90,7 @@ var wTrack = (function() {
 		};
 
 		// start socket connection
-		//socket = io('http://localhost:3000');
-		socket = io('https://log.usystems.ch:3000');
+		socket = io(remoteUrl);
 		Queue.push(new TrackedEvent(
 			'session_start',
 			'session',

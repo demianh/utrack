@@ -295,7 +295,6 @@ exports.endpoints.push([
 exports._documentation = function(req, res){
 	var html = '<h3>API Endpoints</h3>';
 	for (var i in exports.endpoints){
-		console.log(exports.endpoints[i])
 		html += '<a href="/api/'+exports.endpoints[i][0]+'">'+exports.endpoints[i][0]+'</a><br>';
 	}
 	res.send(html);

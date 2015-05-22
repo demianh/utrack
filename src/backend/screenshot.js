@@ -2,6 +2,11 @@ var phantom = require('phantom');
 
 var debug = false;
 
+/**
+ * Screenshot Module
+ * Generates Screenshots with PhantomJS
+ * @returns {{fromHTML: Function}}
+ */
 var screenshot = function() {
 
 	var renderQueue = [];
@@ -77,8 +82,8 @@ var screenshot = function() {
 							},
 							function (result) {
 								page.set('scrollPosition', {top: data.scrollTop, left: data.scrollLeft}, function(){
-									page.render(filename, function(finished){
-										console.log('rendering done');
+									page.render(filename, {}, function(){
+										console.log('rendering done: ' + filename);
 										//ph.exit();
 
 										// render next screenshot
@@ -97,6 +102,11 @@ var screenshot = function() {
 
 	// Adding HTML to the render Queue
 	return {
+		/**
+		 * Generate Image from HTML source. External resources are loaded except *.js files
+		 * @param {object} data - conatains all screenshot data (html, screenWidth, screenHeight, scrollTop, scrollLeft)
+		 * @param {string} filename - filename where the image is stored
+		 */
 		fromHTML: function(data, filename){
 			renderQueue.push([data, filename]);
 			render();
