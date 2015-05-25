@@ -290,6 +290,33 @@ exports.endpoints.push([
 	}
 ]);
 
+// --- DB Statistics
+exports.endpoints.push([
+	'statistics',
+	function(req, res) {
+		var statistics = {};
+		// rowCount
+		db.getCollection('log').count([],
+			function (err, data) {
+				statistics['rowCount'] = data;
+				// sessionCount
+				db.getCollection('log').distinct('session',
+					function (err, data) {
+						statistics['sessionCount'] = data.length;
+						// userCount
+						db.getCollection('log').distinct('session.userId',
+							function (err, data) {
+								statistics['userCount'] = data.length;
+								res.json(statistics);
+							}
+						)
+					}
+				)
+			}
+		)
+	}
+]);
+
 
 // auto generated documentation (list of endpoints)
 exports._documentation = function(req, res){
