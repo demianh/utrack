@@ -29,6 +29,14 @@ app.controller('UsageCtrl', function($scope, $http) {
 					padding: 10,
 					fontWeight: 'bold'
 				}
+			},
+			plotOptions: {
+				pie: {
+					dataLabels: {
+						enabled: true
+					},
+					showInLegend: true
+				}
 			}
 		},
 		// The below properties are watched for changes.
@@ -41,7 +49,7 @@ app.controller('UsageCtrl', function($scope, $http) {
 		loading: false,
 		size: {
 			width: 400,
-			height: 300
+			height: 400
 		},
 		func: function (chart) {
 			// setup some logic for the chart
