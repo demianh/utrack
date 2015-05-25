@@ -7,7 +7,7 @@ git pull origin master
 npm install
 
 cd src/dashboard
-bower install
+bower install --allow-root
 cd ../../
 
 # Restart Server

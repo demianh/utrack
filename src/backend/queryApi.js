@@ -103,7 +103,7 @@ exports.endpoints.push([
 
 			// convert to seconds
 			Object.keys(times).map(function (value, index) {
-				times[value] = Math.round(times[value] / 1000) + ' sec';
+				times[value] = Math.round(times[value] / 1000);
 			});
 
 			res.json(times);

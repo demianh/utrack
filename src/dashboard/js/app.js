@@ -32,6 +32,11 @@ app.config(function($stateProvider, $urlRouterProvider) {
 			templateUrl: "templates/statistics/usage.html",
 			controller: "UsageCtrl"
 		})
+		.state('tabtime', {
+			url: "/statistics/tabtime",
+			templateUrl: "templates/statistics/tabtime.html",
+			controller: "TabtimeCtrl"
+		})
 		.state('workflows', {
 			url: "/statistics/workflows",
 			templateUrl: "templates/statistics/workflows.html",
