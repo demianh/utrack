@@ -25,22 +25,22 @@ app.config(function($stateProvider, $urlRouterProvider) {
 		.state('tabs', {
 			url: "/statistics/tabs",
 			templateUrl: "templates/statistics/tabs.html",
-			controller: "TabsCtrl"
+			controller: "StatisticsTabsCtrl"
 		})
-		.state('usage', {
-			url: "/statistics/usage",
-			templateUrl: "templates/statistics/usage.html",
-			controller: "UsageCtrl"
+		.state('tabusage', {
+			url: "/statistics/tabusage",
+			templateUrl: "templates/statistics/tabusage.html",
+			controller: "StatisticsTabusageCtrl"
 		})
 		.state('tabtime', {
 			url: "/statistics/tabtime",
 			templateUrl: "templates/statistics/tabtime.html",
-			controller: "TabtimeCtrl"
+			controller: "StatisticsTabtimeCtrl"
 		})
-		.state('workflows', {
-			url: "/statistics/workflows",
-			templateUrl: "templates/statistics/workflows.html",
-			controller: "WorkflowsCtrl"
+		.state('workflows-list', {
+			url: "/workflows/list",
+			templateUrl: "templates/workflows/list.html",
+			controller: "WorkflowsListCtrl"
 		})
 		.state('sessions-details', {
 			url: "/sessions/:id",

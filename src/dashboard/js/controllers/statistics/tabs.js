@@ -1,9 +1,9 @@
-app.controller('UsageCtrl', function($scope, $http) {
+app.controller('StatisticsTabsCtrl', function($scope, $http) {
 
 	$scope.data = {};
 	$scope.chartConfig = {};
 
-	$http.get('/api/tabActions').
+	$http.get('/api/tabClicks').
 		success(function(data, status, headers, config) {
 			$scope.data = data;
 			//console.log(data);

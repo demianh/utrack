@@ -1,19 +1,18 @@
-app.controller('WorkflowsCtrl', function($scope, $http) {
+app.controller('StatisticsTabtimeCtrl', function($scope, $http) {
 
 	$scope.data = {};
 	$scope.chartConfig = {};
 
-	$http.get('/api/workflowTimeTotal').
+	$http.get('/api/tabDuration').
 		success(function(data, status, headers, config) {
 			$scope.data = data;
 			//console.log(data);
 
 			// update chart
 			var chartdata = [];
-			for (key in $scope.data) {
-				chartdata.push([key, $scope.data[key]])
-			}
-			console.log(chartdata);
+			Object.keys($scope.data).forEach(function(key) {
+				chartdata.push([key,$scope.data[key]])
+			});
 			$scope.chartConfig.series[0].data = chartdata;
 		}).
 		error(function(data, status, headers, config) {
@@ -23,12 +22,20 @@ app.controller('WorkflowsCtrl', function($scope, $http) {
 	$scope.chartConfig = {
 		options: {
 			chart: {
-				type: 'bar'
+				type: 'pie'
 			},
 			tooltip: {
 				style: {
 					padding: 10,
 					fontWeight: 'bold'
+				}
+			},
+			plotOptions: {
+				pie: {
+					dataLabels: {
+						enabled: true
+					},
+					showInLegend: true
 				}
 			}
 		},
@@ -42,7 +49,7 @@ app.controller('WorkflowsCtrl', function($scope, $http) {
 		loading: false,
 		size: {
 			width: 400,
-			height: 800
+			height: 400
 		},
 		func: function (chart) {
 			// setup some logic for the chart
