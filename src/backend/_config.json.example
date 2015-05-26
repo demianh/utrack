@@ -14,5 +14,9 @@
 	"webserver": {
 		"port": 3000,
 		"portSSL": 3001
+	},
+	"screenshots": {
+		"enabled": false,
+		"path": "screenshots"
 	}
 }
