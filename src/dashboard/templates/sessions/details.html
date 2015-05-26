@@ -17,12 +17,18 @@
 					<table class="table table-bordered">
 						<tbody><tr>
 							<th>Time</th>
+							<th>Screen</th>
 							<th>Event</th>
 							<th>Label</th>
 							<th>Workflow</th>
 						</tr>
 						<tr ng-repeat="(key, value) in data">
 							<td>{{Math.round((value.timestamp - sessionStartTime)/100)/10}}</td>
+							<td>
+								<a href="/{{value.data.screenshotUrl}}" target="_blank" ng-show="value.data.screenshotUrl">
+									<img src="/{{value.data.screenshotUrl}}" width="40">
+								</a>
+							</td>
 							<td>{{value.event}}</td>
 							<td>{{value.label}}</td>
 							<td>{{value.workflow.mainnav}} > {{value.workflow.subnav}}</td>
