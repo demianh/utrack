@@ -76,11 +76,11 @@ io.on('connection', function(socket){
 		var eventData = JSON.parse(msg);
 
 		var imageName = null;
-/*		if (eventData && eventData.data && eventData.data.html){
+		if (eventData && eventData.data && eventData.data.html){
 			// TODO: move screenshot path to config
 			imageName = 'screenshots/wbl_' + Date.now() + '.png';
 			screenshot.fromHTML(eventData.data, imageName);
-		}*/
+		}
 
 		// add image url and send to loggers
 		var copy = JSON.parse(JSON.stringify(eventData));
