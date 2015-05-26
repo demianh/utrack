@@ -19,6 +19,7 @@ var screenshot = function() {
 
 			page = newpage;
 			page.onResourceRequested(function(requestData, networkRequest){
+				// do not load .js files
 				// runs in context of phantom
 				var path = requestData['url'].split('?');
 				if (path[0].substring(path[0].length - 3, path[0].length) == '.js') {
@@ -67,7 +68,11 @@ var screenshot = function() {
 
 		page.set('viewportSize', {width: data.screenWidth, height: data.screenHeight}, function(){
 			page.set('clipRect', {top:0,left:0, width:data.screenWidth, height:data.screenHeight}, function(){
-				page.set('content', data.html, function(){
+
+				// prepare content, remove script tags
+				var html = data.html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "");
+
+				page.set('content', html, function(){
 
 					// wait for webpage to be loaded
 					setTimeout(function(){
@@ -94,7 +99,7 @@ var screenshot = function() {
 							},
 							data
 						);
-					}, 5*1000);
+					}, 15 * 1000); // wait 15 seconds for page to be completely loaded
 				});
 			});
 		});
