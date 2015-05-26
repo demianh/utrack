@@ -14,6 +14,33 @@ MongoClient.connect('mongodb://127.0.0.1:27017/wtrack', function(err, connection
 
 exports.endpoints = [];
 
+// ================== Helper Functions =========
+
+function getWorkflowAsString(workflow){
+	return [workflow.mainnav, workflow.subnav, workflow.dialog.join(' / ')].join(' / ');
+}
+
+function sortObject(obj) {
+	var arr = [];
+	for (var prop in obj) {
+		if (obj.hasOwnProperty(prop)) {
+			arr.push({
+				'key': prop,
+				'value': obj[prop]
+			});
+		}
+	}
+	arr.sort(function(a, b) { return b.value - a.value; });
+
+	var retObj = {};
+	for (var idx in arr) {
+		console.log(arr[idx]);
+		retObj[arr[idx]['key']] = arr[idx]['value']
+	}
+
+	return retObj; // returns array
+}
+
 // ================== Queries ==================
 
 // --- list event types
@@ -171,6 +198,48 @@ exports.endpoints.push([
 	}
 ]);
 
+// --- get a list of actions that happened before an error
+exports.endpoints.push([
+	'workflowBeforeErrors',
+	function(req, res) {
+		db.getCollection('log').find(
+			{},
+			{"sort": [["session.id", "desc"],["timestamp", "desc"]]}
+		).toArray(function (err, data) {
+				var list = {};
+				var isErrorState = 0;
+				var errorEvent;
+
+
+				data.forEach(function(event) {
+
+					if(event.workflow.dialog.indexOf('Oops, es ist ein Fehler aufgetreten...') >= 0){
+						//console.log(event.workflow.dialog);
+						isErrorState = event.session.id;
+						errorEvent = event;
+					} else {
+						// reset state if session changed
+						if (isErrorState && isErrorState != event.session.id){
+							isErrorState = 0;
+						}
+
+						if (isErrorState){
+							// log error
+							if (event.label != "Browser Session ended"){
+								var workflowname = event.event + ': '+ event.label + ' - ' + getWorkflowAsString(event.workflow);
+								console.log(workflowname);
+								console.log((errorEvent.timestamp-event.timestamp)/1000);
+							}
+
+							isErrorState = 0;
+						}
+					}
+				});
+				res.json(list);
+		});
+	}
+]);
+
 
 // --- get time used in workflows
 exports.endpoints.push([
@@ -199,7 +268,7 @@ exports.endpoints.push([
 			var times = {};
 			data.forEach(function (row) {
 				if (row.session) {
-					var section = [row.workflow.mainnav, row.workflow.subnav, row.workflow.dialog.join(' / ')].join(' / ');
+					var section = getWorkflowAsString(row.workflow);
 					if (sessions[row.session.id]) {
 						// update session if section changed or session ended
 						var old_section = sessions[row.session.id].section;
@@ -207,7 +276,11 @@ exports.endpoints.push([
 							if (!times[old_section]) {
 								times[old_section] = row.timestamp - sessions[row.session.id].timestamp;
 							} else {
-								times[old_section] += row.timestamp - sessions[row.session.id].timestamp
+								var time_between = row.timestamp - sessions[row.session.id].timestamp;
+								if (time_between > 20*1000){
+									time_between = 20*1000;
+								}
+								times[old_section] += time_between;
 							}
 
 							sessions[row.session.id] = {
@@ -229,6 +302,8 @@ exports.endpoints.push([
 			Object.keys(times).map(function (value, index) {
 				times[value] = Math.round(times[value] / 1000);
 			});
+
+			times = sortObject(times);
 
 			res.json(times);
 

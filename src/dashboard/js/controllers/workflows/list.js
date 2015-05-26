@@ -41,7 +41,7 @@ app.controller('WorkflowsListCtrl', function($scope, $http) {
 		loading: false,
 		size: {
 			width: 400,
-			height: 800
+			height: 1200
 		},
 		func: function (chart) {
 			// setup some logic for the chart
