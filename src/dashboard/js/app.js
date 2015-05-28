@@ -47,6 +47,11 @@ app.config(function($stateProvider, $urlRouterProvider) {
 			templateUrl: "templates/sessions/details.html",
 			controller: "SessionsDetailsCtrl"
 		})
+		.state('sessions-errors', {
+			url: "/sessionerrors",
+			templateUrl: "templates/sessions/listerrors.html",
+			controller: "SessionsListErrorsCtrl"
+		})
 		.state('sessions', {
 			url: "/sessions",
 			templateUrl: "templates/sessions/list.html",

@@ -34,7 +34,6 @@ function sortObject(obj) {
 
 	var retObj = {};
 	for (var idx in arr) {
-		console.log(arr[idx]);
 		retObj[arr[idx]['key']] = arr[idx]['value']
 	}
 
@@ -63,6 +62,7 @@ exports.endpoints.push([
 	'tabActions',
 	function(req, res) {
 		db.getCollection('log').aggregate([
+			{$match: {event: 'click'}},
 			{
 				$group: {
 					_id: '$workflow.mainnav', count: {$sum: 1}
@@ -108,10 +108,21 @@ exports.endpoints.push([
 						// update session if section changed or session ended
 						var old_section = sessions[row.session.id].section;
 						if (old_section != row.workflow.mainnav || row.event == 'session_end') {
+							var steptime = row.timestamp - sessions[row.session.id].timestamp;
+
+							// if idle time is more than two minutes, do not record time
+							if (steptime > 120*1000){
+								steptime = 0;
+							}
+
+							// reduce idle times to max 20 seconds
+							// user is probably not really using the site during that time
+							steptime = Math.min(steptime, 20*1000);
+
 							if (!times[old_section]) {
-								times[old_section] = row.timestamp - sessions[row.session.id].timestamp;
+								times[old_section] = steptime;
 							} else {
-								times[old_section] += row.timestamp - sessions[row.session.id].timestamp
+								times[old_section] += steptime;
 							}
 							sessions[row.session.id] = {
 								section: row.workflow.mainnav,
@@ -128,10 +139,12 @@ exports.endpoints.push([
 				}
 			});
 
-			// convert to seconds
+			// convert to minutes
 			Object.keys(times).map(function (value, index) {
-				times[value] = Math.round(times[value] / 1000);
+				times[value] = Math.round(times[value] / 1000 / 60);
 			});
+
+			times = sortObject(times);
 
 			res.json(times);
 		});
@@ -227,8 +240,8 @@ exports.endpoints.push([
 							// log error
 							if (event.label != "Browser Session ended"){
 								var workflowname = event.event + ': '+ event.label + ' - ' + getWorkflowAsString(event.workflow);
-								console.log(workflowname);
-								console.log((errorEvent.timestamp-event.timestamp)/1000);
+								//console.log(workflowname);
+								//console.log((errorEvent.timestamp-event.timestamp)/1000);
 							}
 
 							isErrorState = 0;
@@ -236,6 +249,30 @@ exports.endpoints.push([
 					}
 				});
 				res.json(list);
+			});
+	}
+]);
+
+// --- get a list of sessions with errors
+exports.endpoints.push([
+	'sessionErrors',
+	function(req, res) {
+
+		db.getCollection('log').aggregate([
+			{$match: {
+				"workflow.dialog": { $in: ["Oops, es ist ein Fehler aufgetreten..."]}
+			}},
+			{
+				$group: {
+					_id: '$session.id',
+					timestamp: {$first: '$timestamp'},
+					session: {$first: '$session'},
+					count: {$sum: 1}
+				}
+			},
+			{$sort: {timestamp: -1}}
+		], function (err, data) {
+			res.json(data);
 		});
 	}
 ]);
@@ -273,14 +310,21 @@ exports.endpoints.push([
 						// update session if section changed or session ended
 						var old_section = sessions[row.session.id].section;
 						if (old_section != section || row.event == 'session_end') {
+							var steptime = row.timestamp - sessions[row.session.id].timestamp;
+
+							// if idle time is more than two minutes, do not record time
+							if (steptime > 120*1000){
+								steptime = 0;
+							}
+
+							// reduce idle times to max 20 seconds
+							// user is probably not using the site during that time
+							steptime = Math.min(steptime, 20*1000);
+
 							if (!times[old_section]) {
-								times[old_section] = row.timestamp - sessions[row.session.id].timestamp;
+								times[old_section] = steptime;
 							} else {
-								var time_between = row.timestamp - sessions[row.session.id].timestamp;
-								if (time_between > 20*1000){
-									time_between = 20*1000;
-								}
-								times[old_section] += time_between;
+								times[old_section] += steptime;
 							}
 
 							sessions[row.session.id] = {
@@ -344,7 +388,6 @@ exports.endpoints.push([
 				_id: '$session.id',
 				timestamp: {$first: '$timestamp'},
 				session: {$first: '$session'},
-				appId: {$first: '$appId'}
 			}}
 		], function (err, data) {
 			res.json(data);
