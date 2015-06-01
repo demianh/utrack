@@ -19,6 +19,7 @@
 							<th>Time</th>
 							<th>Screen</th>
 							<th>Event</th>
+							<th>Element</th>
 							<th>Label</th>
 							<th>Workflow</th>
 						</tr>
@@ -30,8 +31,9 @@
 								</a>
 							</td>
 							<td>{{value.event}}</td>
+							<td>{{value.element}}</td>
 							<td>{{value.label}}</td>
-							<td>{{value.workflow.mainnav}} > {{value.workflow.subnav}}</td>
+							<td>{{value.workflow.mainnav}} {{value.workflow.subnav ? '> ' + value.workflow.subnav : ''}} {{value.workflow.dialog.length > 0 ? '> ' : ''}}{{value.workflow.dialog.join(' > ')}}</td>
 						</tr>
 						</tbody>
 					</table>
