@@ -355,6 +355,71 @@ exports.endpoints.push([
 	}
 ]);
 
+// --- get exitpoints (last button clicked before dialog close)
+exports.endpoints.push([
+	'exitpoints',
+	function(req, res) {
+		db.getCollection('log').aggregate(
+			[ { $match : { "event": "click"} }, { $sort : {"session.id": 1, timestamp : 1}} ],
+			function (err, events) {
+
+				var exitpoints = {};
+				var lastButton = false;
+				var lastDialog = '';
+
+				events.forEach(function (event) {
+
+					if (lastButton && event.workflow.dialog[0] != lastDialog){
+
+						// workaround: some clicks were recorded after the close event (-> wrong workflow)
+						// if there is a button element or close label, we assume it belongs to the workflow before
+						// but this is not really reliable
+						var button;
+						if (event.label == 'close' || event.element == 'button'){
+							button = event.label;
+						} else {
+							button = lastButton
+						}
+
+						// record last button click
+						if (!exitpoints[lastDialog]){
+							exitpoints[lastDialog] = {};
+						}
+						if (!exitpoints[lastDialog][button]){
+							exitpoints[lastDialog][button] = 1;
+						} else {
+							exitpoints[lastDialog][button]++;
+						}
+
+						//console.log(event.session.id + '; ' + lastDialog + '; ' + button);
+						lastButton = false;
+					}
+
+					if (event.workflow && event.workflow.dialog[0]){
+						if (event.event == 'click'){
+							lastButton = event.label;
+						}
+					}
+					lastDialog = event.workflow.dialog[0];
+				});
+
+
+				// CSV Output for Word Export
+				/*
+				Object.keys(exitpoints).forEach(function(key) {
+					Object.keys(exitpoints[key]).forEach(function(key2) {
+
+						console.log(key +';'+ key2 +';'+ exitpoints[key][key2]);
+					});
+				});
+				*/
+
+				res.json(exitpoints);
+			}
+		)
+	}
+]);
+
 // --- get list of users
 exports.endpoints.push([
 	'users',
@@ -387,7 +452,7 @@ exports.endpoints.push([
 			{$group: {
 				_id: '$session.id',
 				timestamp: {$first: '$timestamp'},
-				session: {$first: '$session'},
+				session: {$first: '$session'}
 			}}
 		], function (err, data) {
 			res.json(data);
