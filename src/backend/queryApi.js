@@ -46,9 +46,9 @@ function sortObject(obj) {
 
 // ================== Queries ==================
 
-// --- list event types
 exports.endpoints.push([
 	'eventTypes',
+	'list of all event types, sorted by number of uses',
 	function(req, res){
 		db.getCollection('log').aggregate([
 			{ $group: {
@@ -64,6 +64,7 @@ exports.endpoints.push([
 // --- list actions per tab
 exports.endpoints.push([
 	'tabActions',
+	'count actions per tab',
 	function(req, res) {
 		db.getCollection('log').aggregate([
 			{$match: {event: 'click'}},
@@ -79,9 +80,9 @@ exports.endpoints.push([
 	}
 ]);
 
-// --- main nav clicks
 exports.endpoints.push([
 	'tabClicks',
+	'click count of main navigation',
 	function(req, res) {
 		db.getCollection('log').aggregate([
 			{$match: {event: 'webling_mainnav'}},
@@ -97,9 +98,9 @@ exports.endpoints.push([
 	}
 ]);
 
-// --- duration per tab
 exports.endpoints.push([
 	'tabDuration',
+	'time spent per tab (minutes)',
 	function(req, res) {
 		db.getCollection('log').find({'workflow.mainnav': {$ne: null}}).sort({timestamp: 1}).toArray(function (err, data) {
 
@@ -155,9 +156,9 @@ exports.endpoints.push([
 	}
 ]);
 
-// --- session duration
 exports.endpoints.push([
 	'sessionDuration',
+	'session duration statistics',
 	function(req, res) {
 		db.getCollection('log').find({$or: [{'event': 'session_start'}, {'event': 'session_end'}]}).sort({timestamp: 1}).toArray(function (err, data) {
 
@@ -197,9 +198,9 @@ exports.endpoints.push([
 	}
 ]);
 
-// --- get list of workflows
 exports.endpoints.push([
 	'workflowList',
+	'list of all workflows, including count of event per workflow',
 	function(req, res) {
 		db.getCollection('log').aggregate([
 			{$match: {'workflow.dialog.0': {$exists: true}}},
@@ -215,9 +216,9 @@ exports.endpoints.push([
 	}
 ]);
 
-// --- get a list of actions that happened before an error
 exports.endpoints.push([
 	'workflowBeforeErrors',
+	'a list of actions that happened before an error',
 	function(req, res) {
 		db.getCollection('log').find(
 			{},
@@ -257,9 +258,9 @@ exports.endpoints.push([
 	}
 ]);
 
-// --- get a list of sessions with errors
 exports.endpoints.push([
 	'sessionErrors',
+	'a list of sessions with errors',
 	function(req, res) {
 
 		db.getCollection('log').aggregate([
@@ -281,10 +282,9 @@ exports.endpoints.push([
 	}
 ]);
 
-
-// --- get time used in workflows
 exports.endpoints.push([
 	'workflowTimeTotal',
+	'time spent in each workflow (seconds)',
 	function(req, res) {
 		db.getCollection('log').aggregate([
 			{
@@ -359,9 +359,9 @@ exports.endpoints.push([
 	}
 ]);
 
-// --- get exitpoints (last button clicked before dialog close)
 exports.endpoints.push([
 	'exitpoints',
+	'exitpoints (last button clicked before dialog closed / workflow ended)',
 	function(req, res) {
 		db.getCollection('log').aggregate(
 			[ { $match : { "event": "click"} }, { $sort : {"session.id": 1, timestamp : 1}} ],
@@ -424,11 +424,12 @@ exports.endpoints.push([
 	}
 ]);
 
-// --- get first actions (first workflow started by new users)
 exports.endpoints.push([
 	'firstworkflows',
+	'first workflows started by new users',
 	function(req, res) {
 
+		// data cleanup, ignore these workflows
 		var ignoredWorkflows = ['Block zur Startseite hinzufügen','Block entfernen','Oops, es ist ein Fehler aufgetreten...'];
 
 		db.getCollection('log').aggregate(
@@ -441,7 +442,7 @@ exports.endpoints.push([
 
 				events.forEach(function (event) {
 
-					// new user
+					// new user, reset found workflow
 					if (event.session.userId != oldUserId) {
 						userWorkflowFound = false;
 					}
@@ -458,21 +459,18 @@ exports.endpoints.push([
 							}
 							userWorkflowFound = true;
 						}
-
 					}
-
 					oldUserId = event.session.userId;
 				});
 
 				workflows = sortObject(workflows);
 
+				/*
 				// CSV Output for Excel Export
-
 				Object.keys(workflows).forEach(function(key) {
-
 					console.log(key +';'+ workflows[key]);
 				});
-
+				*/
 
 				res.json(workflows);
 			}
@@ -480,9 +478,9 @@ exports.endpoints.push([
 	}
 ]);
 
-// --- get list of users
 exports.endpoints.push([
 	'users',
+	'list of user ids',
 	function(req, res) {
 		db.getCollection('log').distinct('session.userId', function (err, data) {
 			res.json(data);
@@ -490,9 +488,9 @@ exports.endpoints.push([
 	}
 ]);
 
-// --- get sessions of a user
 exports.endpoints.push([
 	'users/:id',
+	'list all events of a user',
 	function(req, res) {
 		db.getCollection('log').aggregate(
 			[ { $match : { "session.userId" : req.params.id } }, { $sort : { timestamp : 1}} ],
@@ -503,9 +501,9 @@ exports.endpoints.push([
 	}
 ]);
 
-// --- get a list of sessions
 exports.endpoints.push([
 	'sessions',
+	'a list of all sessions',
 	function(req, res) {
 		db.getCollection('log').aggregate([
 			{$sort: {timestamp: 1}},
@@ -520,9 +518,9 @@ exports.endpoints.push([
 	}
 ]);
 
-// --- get session details
 exports.endpoints.push([
 	'sessions/:id',
+	'events of a session',
 	function(req, res) {
 		db.getCollection('log').aggregate(
 			[ { $match : { "session.id" : req.params.id } }, { $sort : { timestamp : 1}} ],
@@ -533,9 +531,9 @@ exports.endpoints.push([
 	}
 ]);
 
-// --- DB Statistics
 exports.endpoints.push([
 	'statistics',
+	'database statistics',
 	function(req, res) {
 		var statistics = {};
 		// rowCount
@@ -563,9 +561,10 @@ exports.endpoints.push([
 
 // auto generated documentation (list of endpoints)
 exports._documentation = function(req, res){
-	var html = '<h3>API Endpoints</h3>';
+	var html = '<h3>REST API Endpoints</h3>';
 	for (var i in exports.endpoints){
-		html += '<a href="/api/'+exports.endpoints[i][0]+'">'+exports.endpoints[i][0]+'</a><br>';
+		html += '<b><a href="/api/'+exports.endpoints[i][0]+'">/api/'+exports.endpoints[i][0]+'</a></b>' +
+			'<br>'+exports.endpoints[i][1]+'<br><br>';
 	}
 	res.send(html);
 };

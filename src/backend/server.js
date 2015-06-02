@@ -60,7 +60,7 @@ app.get('/api', auth, queryApi._documentation);
 
 // auto generate api routes
 for (var i in queryApi.endpoints){
-	app.get('/api/'+queryApi.endpoints[i][0], auth, queryApi.endpoints[i][1]);
+	app.get('/api/'+queryApi.endpoints[i][0], auth, queryApi.endpoints[i][2]);
 }
 
 // finally 404 Route
