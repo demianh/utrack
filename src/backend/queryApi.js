@@ -16,8 +16,12 @@ exports.endpoints = [];
 
 // ================== Helper Functions =========
 
-function getWorkflowAsString(workflow){
-	return [workflow.mainnav, workflow.subnav, workflow.dialog.join(' / ')].join(' / ');
+function getWorkflowAsString(workflow, ignoreFirst, ignoreSecond){
+	return [
+		(ignoreFirst ? '*': workflow.mainnav),
+		(ignoreSecond ? '*': workflow.subnav),
+		workflow.dialog.join(' / ')
+	].join(' / ');
 }
 
 function sortObject(obj) {
@@ -404,7 +408,7 @@ exports.endpoints.push([
 				});
 
 
-				// CSV Output for Word Export
+				// CSV Output for Excel Export
 				/*
 				Object.keys(exitpoints).forEach(function(key) {
 					Object.keys(exitpoints[key]).forEach(function(key2) {
@@ -415,6 +419,62 @@ exports.endpoints.push([
 				*/
 
 				res.json(exitpoints);
+			}
+		)
+	}
+]);
+
+// --- get first actions (first workflow started by new users)
+exports.endpoints.push([
+	'firstworkflows',
+	function(req, res) {
+
+		var ignoredWorkflows = ['Block zur Startseite hinzufügen','Block entfernen','Oops, es ist ein Fehler aufgetreten...'];
+
+		db.getCollection('log').aggregate(
+			[ { $match : {} }, { $sort : {"session.userId": 1, timestamp : 1}} ],
+			function (err, events) {
+
+				var workflows = {};
+				var oldUserId = false;
+				var userWorkflowFound = false;
+
+				events.forEach(function (event) {
+
+					// new user
+					if (event.session.userId != oldUserId) {
+						userWorkflowFound = false;
+					}
+
+					if (userWorkflowFound === false && event.workflow.dialog[0]){
+						var dialog = event.workflow.dialog[0];
+
+						if (ignoredWorkflows.indexOf(dialog) < 0){
+							var workflow_str = getWorkflowAsString(event.workflow, false, true);
+							if (!workflows[workflow_str]){
+								workflows[workflow_str] = 1;
+							} else {
+								workflows[workflow_str]++;
+							}
+							userWorkflowFound = true;
+						}
+
+					}
+
+					oldUserId = event.session.userId;
+				});
+
+				workflows = sortObject(workflows);
+
+				// CSV Output for Excel Export
+
+				Object.keys(workflows).forEach(function(key) {
+
+					console.log(key +';'+ workflows[key]);
+				});
+
+
+				res.json(workflows);
 			}
 		)
 	}
