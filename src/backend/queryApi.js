@@ -1,8 +1,9 @@
+// This file contains all REST API functions and definitions
 
-var MongoClient = require('mongodb').MongoClient;
 
 // Establish Database Connection
 var db = null;
+var MongoClient = require('mongodb').MongoClient;
 MongoClient.connect('mongodb://127.0.0.1:27017/wtrack', function(err, connection) {
 	if(err) throw err;
 	db = connection;
@@ -15,7 +16,13 @@ MongoClient.connect('mongodb://127.0.0.1:27017/wtrack', function(err, connection
 exports.endpoints = [];
 
 // ================== Helper Functions =========
-
+/**
+ * Converts a workflow object into a human readable text
+ * @param {object} workflow - object of workflow as received from the database
+ * @param {boolean} ignoreFirst - if true, the mainnav will be replaced with *
+ * @param {boolean} ignoreSecond - if true, the subnav will be replaced with *
+ * @returns {string}
+ */
 function getWorkflowAsString(workflow, ignoreFirst, ignoreSecond){
 	return [
 		(ignoreFirst ? '*': workflow.mainnav),
@@ -23,6 +30,12 @@ function getWorkflowAsString(workflow, ignoreFirst, ignoreSecond){
 		workflow.dialog.join(' / ')
 	].join(' / ');
 }
+/**
+ * Sort a javascript object by key value.
+ * Note that JavaScript objects are not ordered, but in some cases, the order is respected.
+ * @param {object} obj - object to sort
+ * @returns {{string}} - sorted object
+ */
 
 function sortObject(obj) {
 	var arr = [];
@@ -559,7 +572,7 @@ exports.endpoints.push([
 ]);
 
 
-// auto generated documentation (list of endpoints)
+// auto generated documentation (list of endpoints and description)
 exports._documentation = function(req, res){
 	var html = '<h3>REST API Endpoints</h3>';
 	for (var i in exports.endpoints){

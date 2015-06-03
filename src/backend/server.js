@@ -1,3 +1,6 @@
+// Main backend file
+// Run this file with NodeJS to start a server
+
 var config = require('./_config.json');
 var fs = require('fs');
 var express = require('express');

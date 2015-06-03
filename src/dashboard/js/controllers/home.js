@@ -1,3 +1,7 @@
+/**
+ * Home Controller, shows some DB statistics
+ */
+
 app.controller('HomeCtrl', function($scope, $http) {
 
 	$scope.data = {};

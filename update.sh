@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# use this script to update the wtrack source and install dependencies
+
 # Fetch source
 git pull origin master
 

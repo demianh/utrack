@@ -19,7 +19,7 @@ var screenshot = function() {
 
 			page = newpage;
 			page.onResourceRequested(function(requestData, networkRequest){
-				// do not load .js files
+				// do not load .js files, javascript should not be executed within phantom
 				// runs in context of phantom
 				var path = requestData['url'].split('?');
 				if (path[0].substring(path[0].length - 3, path[0].length) == '.js') {
@@ -43,7 +43,7 @@ var screenshot = function() {
 			console.log('Phantom Browser not ready...');
 			return;
 		}
-		if(isRendering ){
+		if(isRendering){
 			console.log('Already rendering...');
 			return;
 		} else {
@@ -69,7 +69,7 @@ var screenshot = function() {
 		page.set('viewportSize', {width: data.screenWidth, height: data.screenHeight}, function(){
 			page.set('clipRect', {top:0,left:0, width:data.screenWidth, height:data.screenHeight}, function(){
 
-				// prepare content, remove script tags
+				// prepare content, remove script tags. Javascript should not be executed within phantom
 				var html = data.html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "");
 
 				page.set('content', html, function(){
@@ -78,6 +78,7 @@ var screenshot = function() {
 					setTimeout(function(){
 						page.evaluate(
 							function (data) {
+								// adding a click highlighter to mark the click position
 								var clickHighlighter = document.createElement('div');
 								clickHighlighter.style.cssText = 'position:absolute;width:20px;height:20px;border-radius:10px;opacity:0.5;z-index:99999999;background:#F00;';
 								clickHighlighter.style.top = data.coordinates.y + data.scrollTop - 10 + 'px';
@@ -89,7 +90,6 @@ var screenshot = function() {
 								page.set('scrollPosition', {top: data.scrollTop, left: data.scrollLeft}, function(){
 									page.render(filename, {}, function(){
 										console.log('rendering done: ' + filename);
-										//ph.exit();
 
 										// render next screenshot
 										isRendering = false;
@@ -105,7 +105,6 @@ var screenshot = function() {
 		});
 	};
 
-	// Adding HTML to the render Queue
 	return {
 		/**
 		 * Generate Image from HTML source. External resources are loaded except *.js files
@@ -113,6 +112,7 @@ var screenshot = function() {
 		 * @param {string} filename - filename where the image is stored
 		 */
 		fromHTML: function(data, filename){
+			// Adding HTML to the render Queue
 			renderQueue.push([data, filename]);
 			render();
 		}

@@ -1,3 +1,7 @@
+/**
+ * Tab Navigation Clicks Controller
+ */
+
 app.controller('StatisticsTabsCtrl', function($scope, $http) {
 
 	$scope.data = {};

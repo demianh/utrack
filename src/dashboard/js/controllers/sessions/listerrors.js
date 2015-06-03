@@ -1,3 +1,7 @@
+/**
+ * Sessions with Errors List Controller
+ */
+
 app.controller('SessionsListErrorsCtrl', function($scope, $http) {
 
 	$scope.data = {};

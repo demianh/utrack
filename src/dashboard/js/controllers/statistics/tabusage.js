@@ -1,3 +1,7 @@
+/**
+ * Tab Usage Controller
+ */
+
 app.controller('StatisticsTabusageCtrl', function($scope, $http) {
 
 	$scope.data = {};

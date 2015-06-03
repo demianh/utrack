@@ -1,3 +1,7 @@
+/**
+ * Workflow List Controller
+ */
+
 app.controller('WorkflowsListCtrl', function($scope, $http) {
 
 	$scope.data = {};

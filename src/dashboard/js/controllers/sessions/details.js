@@ -1,3 +1,7 @@
+/**
+ * Session Details Controller
+ */
+
 app.controller('SessionsDetailsCtrl', function($scope, $stateParams, $http) {
 
 	var id = $stateParams.id;

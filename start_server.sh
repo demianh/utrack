@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# use this script to start (or restart) the backend
+
 # kill old phantomjs instances
 killall phantomjs
 

@@ -1,3 +1,7 @@
+/**
+ * Sessions List Controller
+ */
+
 app.controller('SessionsListCtrl', function($scope, $http) {
 
 	$scope.data = {};

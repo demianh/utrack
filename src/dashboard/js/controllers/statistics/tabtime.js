@@ -1,3 +1,7 @@
+/**
+ * Tab Time Controller
+ */
+
 app.controller('StatisticsTabtimeCtrl', function($scope, $http) {
 
 	$scope.data = {};

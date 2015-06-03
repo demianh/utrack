@@ -1,3 +1,4 @@
+// This file is only used to test queries easly. It is not used in production.
 
 var MongoClient = require('mongodb').MongoClient;
 
