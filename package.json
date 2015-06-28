@@ -14,6 +14,7 @@
     "mongodb": "^1.4.34",
     "phantom": "^0.7.2",
     "phantomjs": "^1.9.16",
+    "reveal.js": "^3.1.0",
     "socket.io": "^1.3.5",
     "socket.io-client": "^1.3.5",
     "vis": "^3.11.0"

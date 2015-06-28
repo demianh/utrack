@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+
+		<title>Bachelorarbeit Präsentation</title>
+
+		<meta name="description" content="Bachelorarbeit Präsentation">
+		<meta name="author" content="Demian Holderegger">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="../node_modules/reveal.js/css/reveal.css">
+		<link rel="stylesheet" href="../node_modules/reveal.js/css/theme/night.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="../node_modules/reveal.js/lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+
+				<!---------------- SLIDES -------------->
+				<section>
+					<h2>Usability Test-Tool für Web-Applikationen</h2>
+					<br>
+					<br>
+					<br>
+					<br>
+					<br>
+					Demian Holderegger<br>
+					Bachelorarbeit Informatik, ZHAW, 2015
+
+					<aside class="notes">
+						Notizen
+					</aside>
+				</section>
+
+				<section data-markdown>
+					## Überblick
+					Problemstellung
+
+					Technische Lösung
+
+					Analyse der Fragestellungen
+
+					Demo
+				</section>
+
+				<section>
+					Problemstellung
+
+					<section>
+						<h2>Ausgangslage</h2>
+						<br>
+						Single Page Application (Webling)<br><br>
+
+						Benutzung / Probleme unbekannt<br><br>
+
+						Tracking mit Google Analytics
+
+						<aside class="notes">
+							uSystems -> Single Pg. App<br>
+							Test App: Webling.ch<br>
+							GA: klassische Webseiten (URL / Seitenwechsel)<br>
+							GA: Custom Events möglich, aber Logik selber impl.
+						</aside>
+					</section>
+
+					<section>
+						<h2>Aufgabenstellung</h2>
+						<br>
+						Usability Fragen ausarbeiten<br><br>
+						Tracking Tool entwickeln<br><br>
+						Test durchführen<br><br>
+						Daten analysieren<br><br>
+					</section>
+
+				</section>
+
+
+				<section>
+					Technische Lösung
+
+					<section>
+						<br>
+						<h2>Aufbau</h2>
+
+						<img data-src="images/architektur.png">
+					</section>
+
+					<section>
+						<h2>Client Library</h2>
+					</section>
+
+					<section>
+						<h2>Backend</h2>
+					</section>
+
+					<section>
+						<h2>Dashboard</h2>
+					</section>
+
+				</section>
+
+				<section>
+					Fragestellungen
+
+					<section>
+						<h4>Frage 1</h4>
+						Welche Bereiche (Tabs) werden am häufigsten genutzt?
+						<br><br>
+						<img width="600" data-src="images/f1_tab_time.png" >
+
+						<aside class="notes">
+							Mitglieder 31min<br>
+							Buchhaltung 19min<br>
+
+							Seite nach laden<br>
+							Hauptbereiche, Werbung<br>
+
+						</aside>
+					</section>
+
+					<section>
+						<br>
+						<h4>Frage 2</h4>
+						Welche Workflows werden in unserer Applikation genutzt und wie häufig?
+						<br><br>
+						<img width="960" data-src="images/f2_workflows.png" >
+					</section>
+
+					<section>
+						<h4>Frage 3</h4>
+						Wo treten Fehler auf und was hat der Benutzer vorher gemacht?
+
+					</section>
+
+					<section>
+						<h4>Frage 4</h4>
+						Bei welchem Event brechen wie viele Benutzer den Workflow ab?
+
+					</section>
+
+					<section>
+						<h4>Frage 5</h4>
+						Was macht ein Benutzer als erstes wenn er die Applikation das erste Mal benutzt (Demo Version)?
+					</section>
+
+					<section>
+						<h3>Fazit</h3>
+
+						<aside class="notes">
+							Notizen
+						</aside>
+					</section>
+				</section>
+
+				<section>
+					<h2> Demo</h2>
+
+					<a href="https://demo9.webling.ch" target="_blank">Session aufzeichnen</a>
+					<br>
+					<a href="https://log.usystems.ch:3000/dashboard/#/" target="_blank">Dashboard ansehen</a>
+				</section>
+
+				<section data-markdown>
+					## THE END
+				</section>
+
+				<!---------------- SLIDES END -------------->
+
+			</div>
+		</div>
+		<script src="../node_modules/reveal.js/lib/js/head.min.js"></script>
+		<script src="../node_modules/reveal.js/js/reveal.js"></script>
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: false,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: '../node_modules/reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: '../node_modules/reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '../node_modules/reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '../node_modules/reveal.js/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: '../node_modules/reveal.js/plugin/zoom-js/zoom.js', async: true },
+					{ src: '../node_modules/reveal.js/plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+	</body>
+</html>
