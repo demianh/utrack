@@ -90,6 +90,10 @@
 						Tracking Tool entwickeln<br><br>
 						Test durchführen<br><br>
 						Daten analysieren<br><br>
+
+						<aside class="notes">
+							Fragen später, mit Auswertung<br>
+						</aside>
 					</section>
 
 				</section>
@@ -102,25 +106,49 @@
 						<br>
 						<h2>Aufbau</h2>
 
-						<img data-src="images/architektur.png">
+						<img class="fragment" data-src="images/architektur.png">
 					</section>
 
 					<section>
 						<h2>Client Library</h2>
+						<br>
+						mit JavaScript die Eingaben abfangen<br><br>
+						Daten und HTML an Backend senden<br><br>
+						Logik um Workflows zu erkennen<br><br>
+						Plugins für applikationsspezifisches
 					</section>
 
 					<section>
+						<br>
 						<h2>Backend</h2>
+						NodeJS &middot; MongoDB &middot; Screenshots<br><br>
+						<img data-src="images/screenshot.png">
+
+						<aside class="notes">
+							Screenshots: PhantomJS, HTML, neu rendern<br>
+							Probleme: Input Felder, Webfonts, Browserspezifisch, Datenübertragung<br>
+						</aside>
 					</section>
 
 					<section>
+						<br>
 						<h2>Dashboard</h2>
+						Statistiken & Logs<br><br>
+						<img data-src="images/dashboard.png">
+
+						<aside class="notes">
+							<br>
+						</aside>
 					</section>
 
 				</section>
 
 				<section>
 					Fragestellungen
+
+					<section>
+						<h2>Auswertung der Fragestellungen</h2>
+					</section>
 
 					<section>
 						<h4>Frage 1</h4>
@@ -144,40 +172,83 @@
 						Welche Workflows werden in unserer Applikation genutzt und wie häufig?
 						<br><br>
 						<img width="960" data-src="images/f2_workflows.png" >
+
+						<aside class="notes">
+							Ein neues Datenfeld -> Konfiguration testen<br>
+
+						</aside>
 					</section>
 
 					<section>
 						<h4>Frage 3</h4>
-						Wo treten Fehler auf und was hat der Benutzer vorher gemacht?
+						Wo treten Fehler auf und was hat der Benutzer vorher gemacht?<br>
+						<br>
+						<img data-src="images/f3_fehlerprotokoll.png" >
+						<aside class="notes">
+							Nur 2 Fehlerfälle<br>
+							Um Fehler nachzuvollziehen<br>
 
+						</aside>
 					</section>
 
 					<section>
 						<h4>Frage 4</h4>
-						Bei welchem Event brechen wie viele Benutzer den Workflow ab?
+						Bei welchem Event brechen wie viele Benutzer den Workflow ab?<br>
+						<br>
+						<img width="960" data-src="images/f4_exits.png" >
+						<aside class="notes">
+							Wenig Daten<br>
+							Demo Daten - Produktion besser<br>
+							Erste Trends erkennt man<br>
+						</aside>
 
 					</section>
 
 					<section>
 						<h4>Frage 5</h4>
-						Was macht ein Benutzer als erstes wenn er die Applikation das erste Mal benutzt (Demo Version)?
+						Was macht ein Benutzer als erstes wenn er die Applikation das erste Mal benutzt?<br>
+						<br>
+						<img data-src="images/f5_first_workflows.png">
+						<aside class="notes">
+							!! Demo Version !! <br>
+							Nur Workflows (3. Ebene)<br>
+						</aside>
 					</section>
 
 					<section>
-						<h3>Fazit</h3>
-
+						<br>
+						<img data-src="images/f5_first_wfs_comp.png">
 						<aside class="notes">
-							Notizen
+							Untergruppen: Zuerst Ansichten testen<br>
+							Datenfeld erstellen: Konfiguration erst später<br>
 						</aside>
 					</section>
+
+				</section>
+
+				<section>
+					<h2>Fazit</h2>
+					<div>
+						<div class="fragment">✓ Benutzer-Tracking<br><br></div>
+						<div class="fragment">✓ Workflows erkennen<br><br></div>
+						<div class="fragment">✓ Screenshots<br><br></div>
+						<div class="fragment">✓ Live Test<br><br></div>
+						<div class="fragment">✓ Erste Auswertungen<br><br></div>
+						<div class="fragment">✓ Viele neuen Ideen...<br><br></div>
+					</div>
+
+					<aside class="notes">
+						Weiterführende Ideen:<br>
+						Auswertungen, Dimensionen (Benutzerrollen), weitere Applikationen, Mobile Optimierungen, Videos, Error Reporting
+					</aside>
 				</section>
 
 				<section>
 					<h2> Demo</h2>
 
-					<a href="https://demo9.webling.ch" target="_blank">Session aufzeichnen</a>
+					<a href="https://demo9.webling.ch" target="_blank">Session aufzeichnen</a> &middot; <a href="http://demo.webling.dev" target="_blank">Lokal</a>
 					<br>
-					<a href="https://log.usystems.ch:3000/dashboard/#/" target="_blank">Dashboard ansehen</a>
+					<a href="https://log.usystems.ch:3000/dashboard/#/" target="_blank">Dashboard ansehen</a> &middot; <a href="http://localhost:3000/dashboard/#/" target="_blank">Lokal</a>
 				</section>
 
 				<section data-markdown>
