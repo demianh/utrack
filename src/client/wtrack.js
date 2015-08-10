@@ -1,4 +1,8 @@
 
+/*
+* Copyright (c) 2015 Demian Holderegger
+* Licensed under the MIT license.
+*/
 
 var wTrack = (function() {
 

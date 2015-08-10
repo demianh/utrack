@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2015 Demian Holderegger
+ * Licensed under the MIT license.
+ */
+
 // Main backend file
 // Run this file with NodeJS to start a server
 

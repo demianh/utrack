@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2015 Demian Holderegger
+ * Licensed under the MIT license.
+ */
+
 /**
  * Home Controller, shows some DB statistics
  */

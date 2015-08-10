@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2015 Demian Holderegger
+ * Licensed under the MIT license.
+ */
+
 var phantom = require('phantom');
 
 var debug = false;
