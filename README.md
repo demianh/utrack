@@ -23,3 +23,8 @@ Open the backend website in your browser to watch the logs:
 [http://localhost:3000/](http://localhost:3000/)
 
 Now Open your Web Application and start clicking - you should see the tracked events
+
+## License
+
+Copyright (c) 2015 Demian Holderegger
+Licensed under the MIT license.
